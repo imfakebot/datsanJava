@@ -1,0 +1,61 @@
+@startuml BookingSequenceDiagram
+actor "Khách hàng" as User
+participant "Frontend" as FE
+participant "Backend\n(Spring Boot)" as BE
+database "Database" as DB
+participant "VNPay" as VNP
+
+User -> FE : Chọn sân, giờ bắt đầu (startTime) & thời lượng (duration)
+FE -> BE : POST /api/bookings
+activate BE
+
+BE -> DB : Kiểm tra lịch trống
+activate DB
+DB --> BE : Kết quả (Trống/Bận)
+deactivate DB
+
+alt Sân đã bị đặt
+    BE --> FE : Lỗi "Trùng lịch đặt"
+    FE --> User : Hiển thị lỗi
+else Sân trống
+    BE -> DB : Lấy cấu hình TimeSlot
+    activate DB
+    DB --> BE : Dữ liệu TimeSlot
+    deactivate DB
+    
+    BE -> BE : Tính tổng tiền (Dynamic Price)
+    
+    BE -> DB : Tạo Booking (PENDING_PAYMENT)
+    BE -> DB : Tạo Payment (PENDING)
+    
+    BE -> BE : Tạo URL thanh toán VNPay
+    BE --> FE : Trả về Payment URL
+    deactivate BE
+    
+    FE --> User : Redirect sang trang VNPay
+    
+    User -> VNP : Nhập thông tin thanh toán (Thẻ/QR)
+    activate VNP
+    VNP -> VNP : Xử lý giao dịch
+    
+    par
+        VNP --> FE : Redirect về trang KQ (Return URL)
+        FE --> User : Hiển thị màn hình kết quả
+    else
+        VNP -> BE : Gọi API báo kết quả (IPN Callback)
+        activate BE
+        BE -> BE : Kiểm tra chữ ký & vnp_ResponseCode
+        alt Thành công (00)
+            BE -> DB : Update Payment (SUCCESS)
+            BE -> DB : Update Booking (CONFIRMED)
+        else Thất bại/Hủy
+            BE -> DB : Update Payment (FAILED)
+            BE -> DB : Update Booking (CANCELLED)
+        end
+        BE --> VNP : HTTP 200 OK
+        deactivate BE
+    end
+    deactivate VNP
+end
+
+@enduml

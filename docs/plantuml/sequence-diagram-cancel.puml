@@ -1,0 +1,54 @@
+@startuml CancelSequenceDiagram
+actor "Khách hàng" as User
+participant "Frontend" as FE
+participant "Backend\n(Spring Boot)" as BE
+database "Database" as DB
+participant "VNPay" as VNP
+
+User -> FE : Nhấn "Hủy đặt sân" (kèm lý do)
+FE -> BE : POST /api/bookings/{id}/cancel
+activate BE
+
+BE -> DB : Lấy thông tin Booking & Payment
+activate DB
+DB --> BE : Dữ liệu (Booking, Payment)
+deactivate DB
+
+BE -> BE : Kiểm tra quy định hủy: \n(1) Trong 3h từ lúc đặt: Hoàn 100%\n(2) > 3h từ lúc đặt & trước đá 12h: Hoàn 40%\n(3) < 12h trước khi đá: Không hoàn, XÓA booking
+
+alt Khung (3): Sát giờ (< 12h trước giờ đá)
+    BE -> DB : Xóa Booking (DELETE)
+    BE -> DB : Cập nhật Payment (NO_REFUND)
+    BE --> FE : Hủy thành công (Không hoàn tiền)
+    FE --> User : Thông báo: "Hủy sân thành công, không hoàn tiền do sát giờ"
+else Khung (1) hoặc (2): Đủ điều kiện hoàn tiền
+    alt Khung (1): Trong vòng 3h từ lúc đặt
+        BE -> BE : Tính số tiền hoàn = 100%
+    else Khung (2): Hơn 3h từ lúc đặt & Trước giờ đá > 12h
+        BE -> BE : Tính số tiền hoàn = 40%
+    end
+    
+    alt Đơn đã thanh toán (CONFIRMED)
+        BE -> VNP : Gọi API Hoàn tiền VNPay (kèm số tiền)
+        activate VNP
+        VNP --> BE : Kết quả hoàn tiền
+        deactivate VNP
+        
+        alt Hoàn tiền thất bại (Lỗi cổng thanh toán)
+            BE --> FE : Lỗi hệ thống hoàn tiền
+            FE --> User : Báo lỗi "Không thể hoàn tiền lúc này"
+        else Hoàn tiền thành công
+            BE -> DB : Cập nhật Payment (REFUNDED)
+            BE -> DB : Xóa Booking (DELETE)
+            BE --> FE : Hủy & Hoàn tiền thành công
+            FE --> User : Thông báo số tiền hoàn sẽ về tài khoản
+        end
+    else Đơn chưa thanh toán (PENDING_PAYMENT)
+        BE -> DB : Xóa Booking (DELETE)
+        BE -> DB : Cập nhật Payment (CANCELLED)
+        BE --> FE : Hủy thành công
+        FE --> User : Thông báo hủy sân thành công
+    end
+end
+deactivate BE
+@enduml

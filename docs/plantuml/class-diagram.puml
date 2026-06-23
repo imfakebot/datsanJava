@@ -1,0 +1,107 @@
+@startuml ClassDiagram
+skinparam classAttributeIconSize 0
+
+class Account {
+  - Long id
+  - String username
+  - String password
+  - String fullName
+  - String phone
+  - String email
+  - Role role
+  + login(username: String, pass: String): String
+  + register(acc: Account): Account
+}
+
+enum Role {
+  CUSTOMER
+  STAFF
+  ADMIN
+}
+
+Account -> Role
+
+class Pitch {
+  - Long id
+  - String name
+  - String location
+  - Double latitude
+  - Double longitude
+  - String pitchType
+  - String status
+  + getDetails(): Pitch
+  + updateStatus(newStatus: String): void
+}
+
+class TimeSlot {
+  - Long id
+  - Long pitchId
+  - LocalTime startTime
+  - LocalTime endTime
+  - boolean isGoldenHour
+  - Double price
+  - DayOfWeek dayOfWeek
+  + getPriceInfo(): Double
+}
+
+Pitch "1" *-- "0..*" TimeSlot : has
+
+class Booking {
+  - Long id
+  - Long accountId
+  - Long pitchId
+  - LocalDateTime bookingDate
+  - LocalDateTime startTime
+  - Integer durationMinutes
+  - Double totalAmount
+  - BookingStatus status
+  + createBooking(): Booking
+  + cancelBooking(): boolean
+  + checkIn(): void
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  CANCELLED
+  CHECKED_IN
+  NO_SHOW
+}
+
+Booking -> BookingStatus
+
+class Payment {
+  - Long id
+  - Long bookingId
+  - Double amount
+  - PaymentMethod method
+  - PaymentStatus status
+  - String transactionNo
+  - String bankCode
+  - String orderInfo
+  - String vnpResponseCode
+  - LocalDateTime paymentTime
+  + createPaymentUrl(amount: Double): String
+  + handleCallback(vnpParams: Map): boolean
+  + refund(): boolean
+}
+
+enum PaymentMethod {
+  VNPAY
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+Payment -> PaymentMethod
+Payment -> PaymentStatus
+
+Account "1" -- "0..*" Booking : places / manages
+Pitch "1" -- "0..*" Booking : is booked for
+Booking "1" *-- "0..1" Payment : includes
+
+@enduml
