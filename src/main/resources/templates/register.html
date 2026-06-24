@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Datsan</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        .auth-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+        .auth-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .auth-form .form-group {
+            margin-bottom: 15px;
+        }
+        .auth-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .auth-form input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-family: inherit;
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #111827;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .auth-btn:hover {
+            background-color: #374151;
+        }
+        .auth-links {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .auth-links a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body style="background-color: #f9fafb;">
+
+    <header class="header container">
+        <div class="header-left">
+            <a href="/" class="logo">Datsan</a>
+        </div>
+    </header>
+
+    <div class="auth-container">
+        <h2 class="auth-title">Create an account</h2>
+        
+        <form th:action="@{/register}" th:object="${account}" method="post" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" th:field="*{username}" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="email" id="email" th:field="*{email}" required>
+            </div>
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" th:field="*{fullName}" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="text" id="phone" th:field="*{phone}" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" th:field="*{password}" required>
+            </div>
+            <button type="submit" class="auth-btn">Sign up</button>
+        </form>
+        <div class="auth-links">
+            Already have an account? <a href="/login">Log in</a>
+        </div>
+    </div>
+
+</body>
+</html>

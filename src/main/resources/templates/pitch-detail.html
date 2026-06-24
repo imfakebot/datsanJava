@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pitch.name} + ' - Datsan'">Pitch Detail</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="header container">
+        <div class="header-left">
+            <a href="/" class="logo">Datsan</a>
+            <nav class="nav-links">
+                <a href="#">Explore</a>
+                <a href="#">Pitches</a>
+                <a href="#">Pricing</a>
+            </nav>
+        </div>
+        <div class="header-right">
+            <a href="/login" class="login-link" th:if="${account.username == null}">Log in</a>
+            <a href="/register" class="signup-btn" th:if="${account.username == null}">Sign up</a>
+            <a href="/admin/dashboard" class="login-link" th:if="${account.username != null and account.role.name() == 'ADMIN'}">Admin Dashboard</a>
+            <a href="/logout" class="signup-btn" th:if="${account.username != null}">Logout</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content container">
+        
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="/">Home</a> / <a href="#">Pitches</a> / <span th:text="${pitch.name}">Pitch Name</span>
+        </div>
+
+        <div class="pitch-detail-wrapper">
+            
+            <!-- Left Column: Image -->
+            <div class="pitch-detail-image-box">
+                <img th:if="${pitch.imageUrl != null}" th:src="${pitch.imageUrl}" th:alt="${pitch.name}" class="pitch-detail-img">
+                <div th:if="${pitch.imageUrl == null}" class="pitch-detail-img-placeholder">
+                    <span>No Image Available</span>
+                </div>
+            </div>
+
+            <!-- Right Column: Information -->
+            <div class="pitch-detail-info-box">
+                <div class="pitch-detail-header">
+                    <span class="pitch-type-badge-large" th:text="${pitch.pitchType}">Type</span>
+                    <span class="pitch-status-large" 
+                          th:classappend="${pitch.status == 'Available' ? 'status-available' : 'status-unavailable'}" 
+                          th:text="${pitch.status ?: 'Available'}">Available
+                    </span>
+                </div>
+                
+                <h1 class="pitch-detail-title" th:text="${pitch.name}">Pitch Name</h1>
+                
+                <div class="pitch-detail-location">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span th:text="${pitch.location}">Location</span>
+                </div>
+
+                <div class="pitch-detail-description">
+                    <h3>About this pitch</h3>
+                    <p>Experience top-tier football on our premium artificial turf. Equipped with high-quality LED lighting for night matches, secure parking, and clean changing rooms with showers. Perfect for casual games, tournaments, or team training sessions.</p>
+                </div>
+
+                <div class="pitch-detail-amenities">
+                    <h3>Amenities</h3>
+                    <ul class="amenities-list">
+                        <li>⚽ Premium Artificial Turf</li>
+                        <li>💡 LED Floodlights</li>
+                        <li>🚿 Changing Rooms & Showers</li>
+                        <li>🚗 Free Secure Parking</li>
+                        <li>🥤 Refreshment Stand</li>
+                    </ul>
+                </div>
+
+                <div class="pitch-detail-pricing">
+                    <div class="price-box">
+                        <span class="price-label">Starting from</span>
+                        <span class="price-value">300,000 VND <span class="price-unit">/ hour</span></span>
+                    </div>
+                    
+                    <form th:action="@{/booking/init}" method="post" style="margin-top: 15px; width: 100%;">
+                        <input type="hidden" name="pitchId" th:value="${pitch.id}" />
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label for="bookingDate" style="display: block; margin-bottom: 5px; font-weight: 500;">Select Date</label>
+                            <input type="date" id="bookingDate" name="bookingDate" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" />
+                        </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label for="startTime" style="display: block; margin-bottom: 5px; font-weight: 500;">Select Start Time</label>
+                            <input type="time" id="startTime" name="startTime" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" />
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label for="duration" style="display: block; margin-bottom: 5px; font-weight: 500;">Duration (Hours)</label>
+                            <select id="duration" name="duration" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                                <option value="1">1 Hour</option>
+                                <option value="1.5">1.5 Hours</option>
+                                <option value="2">2 Hours</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="book-now-btn-large" style="width: 100%;">Book & Pay via VNPAY</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <h3>Datsan</h3>
+                <p>The modern platform for sports venues.</p>
+            </div>
+            <div class="footer-links">
+                <a href="#">Terms of Service</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
