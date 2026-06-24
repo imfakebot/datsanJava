@@ -53,15 +53,6 @@ public class SecurityConfig {
                 .requestMatchers("/", "/pitch/**", "/uploads/**", "/api/upload/**", "/css/**", "/images/**", "/register", "/error").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/")
-                .permitAll()
-            )
-            .logout(logout -> logout
-                .logoutSuccessUrl("/")
-                .permitAll()
             );
         return http.build();
     }

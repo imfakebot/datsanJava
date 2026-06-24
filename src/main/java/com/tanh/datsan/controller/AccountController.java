@@ -31,22 +31,4 @@ public class AccountController {
         return "index";
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
-
-    @GetMapping("/register")
-    public String register(Model model) {
-        model.addAttribute("account", new Account());
-        return "register";
-    }
-
-    @org.springframework.web.bind.annotation.PostMapping("/register")
-    public String processRegister(Account account) {
-        account.setPassword(passwordEncoder.encode(account.getPassword()));
-        account.setRole(com.tanh.datsan.constant.Role.CUSTOMER);
-        accountRepository.save(account);
-        return "redirect:/login?registered";
-    }
 }
