@@ -9,8 +9,12 @@ class Account {
   - String phone
   - String email
   - Role role
+  - boolean isVerified
+  - String verificationCode
+  - LocalDateTime verificationCodeExpiry
   + login(username: String, pass: String): String
   + register(acc: Account): Account
+  + verifyAccount(code: String): boolean
 }
 
 enum Role {
@@ -42,22 +46,27 @@ class TimeSlot {
   - Double price
   - DayOfWeek dayOfWeek
   + getPriceInfo(): Double
+  + updateTimeSlot(startTime: LocalTime, endTime: LocalTime, price: Double): void
 }
 
 Pitch "1" *-- "0..*" TimeSlot : has
 
 class Booking {
   - Long id
+  - String bookingCode
   - Long accountId
   - Long pitchId
-  - LocalDateTime bookingDate
+  - LocalDate bookingDate
   - LocalDateTime startTime
+  - LocalDateTime endTime
   - Integer durationMinutes
   - Double totalAmount
   - BookingStatus status
-  + createBooking(): Booking
-  + cancelBooking(): boolean
-  + checkIn(): void
+  + checkAvailability(pitchId: Long, startTime: LocalDateTime, endTime: LocalDateTime): boolean
+  + getBookedTimeRanges(pitchId: Long, date: LocalDate): List<Booking>
+  + createBooking(booking: Booking): Booking
+  + cancelBooking(bookingId: Long): boolean
+  + checkIn(bookingCode: String): void
 }
 
 enum BookingStatus {
@@ -81,9 +90,9 @@ class Payment {
   - String orderInfo
   - String vnpResponseCode
   - LocalDateTime paymentTime
-  + createPaymentUrl(amount: Double): String
+  + createPaymentUrl(amount: Double, bookingId: Long): String
   + handleCallback(vnpParams: Map): boolean
-  + refund(): boolean
+  + refund(paymentId: Long): boolean
 }
 
 enum PaymentMethod {

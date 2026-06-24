@@ -9,7 +9,7 @@ User -> FE : Chọn sân, giờ bắt đầu (startTime) & thời lượng (dura
 FE -> BE : POST /api/bookings
 activate BE
 
-BE -> DB : Kiểm tra lịch trống
+BE -> DB : Kiểm tra lịch trống (Overlap theo startTime & endTime)
 activate DB
 DB --> BE : Kết quả (Trống/Bận)
 deactivate DB

@@ -1,5 +1,7 @@
 package com.tanh.datsan.entity;
 
+import com.tanh.datsan.constant.PaymentMethod;
+import com.tanh.datsan.constant.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;

@@ -1,4 +1,4 @@
-package com.tanh.datsan.entity;
+package com.tanh.datsan.constant;
 
 public enum PaymentMethod {
     VNPAY,
