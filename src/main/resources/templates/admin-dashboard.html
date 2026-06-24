@@ -98,6 +98,7 @@
                             <th>User</th>
                             <th>Time</th>
                             <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -107,6 +108,11 @@
                             <td th:text="${b.account.username}"></td>
                             <td th:text="${#temporals.format(b.startTime, 'dd/MM/yyyy HH:mm')} + ' - ' + ${#temporals.format(b.endTime, 'HH:mm')}"></td>
                             <td th:text="${b.status}"></td>
+                            <td>
+                                <form th:if="${b.status.name() == 'CONFIRMED'}" th:action="@{/admin/booking/{id}/checkin(id=${b.id})}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn-primary" style="background-color: #10b981; padding: 4px 8px; font-size: 14px;">Check In</button>
+                                </form>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

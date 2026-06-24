@@ -84,4 +84,14 @@ public class AdminController {
 
         return "admin-pitch-detail";
     }
+
+    @PostMapping("/booking/{id}/checkin")
+    public String checkInBooking(@PathVariable Long id) {
+        Booking booking = bookingRepository.findById(id).orElse(null);
+        if (booking != null && booking.getStatus() == com.tanh.datsan.constant.BookingStatus.CONFIRMED) {
+            booking.setStatus(com.tanh.datsan.constant.BookingStatus.CHECKED_IN);
+            bookingRepository.save(booking);
+        }
+        return "redirect:/admin/dashboard?checkedin";
+    }
 }
