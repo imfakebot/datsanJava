@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điều Khiển - Đặt Sân Đá Bóng</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="dashboard-page">
+    <nav class="navbar">
+        <a href="/dashboard" class="navbar-brand">
+            <span>⚽</span>
+            <div>Đặt Sân Bóng</div>
+        </a>
+        <div class="navbar-right">
+            <div class="user-info">
+                Xin chào, <strong sec:authentication="name">Huy</strong>!
+            </div>
+            <a href="/logout" class="logout-btn">Đăng Xuất</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="welcome-section">
+            <div class="welcome-header">
+                <div class="welcome-icon">⚽</div>
+                <div class="welcome-text">
+                    <h1>Chào mừng bạn trở lại!</h1>
+                    <p>Khám phá những sân bóng tốt nhất gần bạn và đặt sân ngay hôm nay</p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📍</div>
+                    <div class="stat-value">25+</div>
+                    <div class="stat-label">Sân Bóng Khả Dụng</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Lượt Đặt Của Bạn</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-value">4.8</div>
+                    <div class="stat-label">Đánh Giá Trung Bình</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 style="color: white; margin-bottom: 20px;">🚀 Tính Năng Chính</h2>
+        <div class="features-section">
+            <div class="feature-card">
+                <div class="feature-icon">📍</div>
+                <div class="feature-title">Tìm Kiếm Sân <span class="badge">HOẠT ĐỘNG</span></div>
+                <div class="feature-description">
+                    Tìm kiếm các sân bóng gần bạn với thông tin chi tiết về loại sân, giá cả và đánh giá từ người dùng khác.
+                </div>
+                <button class="feature-btn" onclick="alert('Tính năng này sẽ được cập nhật!')">Khám Phá Sân</button>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📅</div>
+                <div class="feature-title">Quản Lý Đặt Sân <span class="badge">HOẠT ĐỘNG</span></div>
+                <div class="feature-description">
+                    Xem, quản lý và hủy các đặt sân của bạn. Nhận thông báo nhắc nhở trước giờ đặt.
+                </div>
+                <button class="feature-btn" onclick="alert('Tính năng này sẽ được cập nhật!')">Xem Đặt Sân</button>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💳</div>
+                <div class="feature-title">Thanh Toán An Toàn <span class="badge">HOẠT ĐỘNG</span></div>
+                <div class="feature-description">
+                    Hỗ trợ nhiều phương thức thanh toán với bảo mật hàng đầu. Thanh toán trực tuyến hoặc tại sân.
+                </div>
+                <button class="feature-btn" onclick="alert('Tính năng này sẽ được cập nhật!')">Chi Tiết Thanh Toán</button>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">⭐</div>
+                <div class="feature-title">Đánh Giá & Bình Luận</div>
+                <div class="feature-description">
+                    Chia sẻ trải nghiệm của bạn và giúp cộng đồng tìm thấy những sân tốt nhất.
+                </div>
+                <button class="feature-btn coming-soon" disabled>Sắp Có Mặt</button>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <div class="feature-title">Chia Sẻ Sân Với Bạn Bè</div>
+                <div class="feature-description">
+                    Tạo nhóm chơi, mời bạn bè và cùng nhau tổ chức các trận đấu vui vẻ.
+                </div>
+                <button class="feature-btn coming-soon" disabled>Sắp Có Mặt</button>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🏆</div>
+                <div class="feature-title">Thống Kê & Thành Tích</div>
+                <div class="feature-description">
+                    Theo dõi lịch sử đặt sân, thống kê sử dụng và các thành tích của bạn.
+                </div>
+                <button class="feature-btn coming-soon" disabled>Sắp Có Mặt</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="dashboard-footer">
+        <p>&copy; 2026 Hệ Thống Đặt Sân Đá Bóng. Tất cả các quyền được bảo lưu.</p>
+        <p style="font-size: 12px; margin-top: 10px; opacity: 0.8;">Phát triển bởi Team Datsan | <a href="#" style="color: #667eea; text-decoration: none;">Chính sách riêng tư</a> | <a href="#" style="color: #667eea; text-decoration: none;">Điều khoản dịch vụ</a></p>
+    </footer>
+</body>
+</html>

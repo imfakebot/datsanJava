@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - Hệ Thống Đặt Sân Chuyên Nghiệp</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="toast-container" id="toastBox">
+        <th:block th:if="${param.error}">
+            <div class="toast error">
+                <div class="toast-icon">⚽</div>
+                <div class="toast-content">
+                    <span class="toast-title">Đăng Nhập Thất Bại</span>
+                    <span class="toast-msg">Tài khoản hoặc mật khẩu không đúng!</span>
+                </div>
+                <div class="toast-progress"></div>
+            </div>
+        </th:block>
+        <th:block th:if="${param.success}">
+            <div class="toast success">
+                <div class="toast-icon">⚽</div>
+                <div class="toast-content">
+                    <span class="toast-title">Đăng Ký Thành Công</span>
+                    <span class="toast-msg">Vui lòng đăng nhập để tiếp tục.</span>
+                </div>
+                <div class="toast-progress"></div>
+            </div>
+        </th:block>
+    </div>
+
+    <div class="container login-container">
+        <div class="header">
+            <div class="logo">⚽</div>
+            <h1>Đặt Sân Bóng</h1>
+            <p>Đăng nhập hệ thống quản lý chuyên nghiệp</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Tên đăng nhập</label>
+                <input type="text" id="username" name="username" required placeholder="Nhập tên đăng nhập">
+            </div>
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" name="password" required placeholder="Nhập mật khẩu">
+            </div>
+            <div class="remember-me">
+                <input type="checkbox" id="remember" name="remember">
+                <label for="remember" style="margin: 0; text-transform: none; letter-spacing: normal;">Ghi nhớ phiên đăng nhập</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Đăng Nhập</button>
+        </form>
+
+        <div class="divider">HOẶC</div>
+        <button class="btn btn-secondary" onclick="window.location.href='/register'">Tạo Tài Khoản Mới</button>
+        <div class="footer-text">
+            Bạn đã quên mật khẩu? <a href="#" onclick="alert('Tính năng này sẽ được cập nhật!')">Khôi phục tại đây</a>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginForm = document.getElementById('loginForm');
+        
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            const formData = new URLSearchParams(new FormData(this));
+
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+            .then(response => {
+                if (response.url.includes('error')) {
+                    showToast('error', 'Đăng Nhập Thất Bại', 'Tài khoản hoặc mật khẩu không chính xác!');
+                } else if (response.url.includes('otp-verify') || response.url.includes('otp')) {
+                    showToast('success', 'Kiểm Tra Hộp Thư', 'Mã xác thực đã được gửi. Đang chuyển hướng...');
+                    setTimeout(() => { window.location.href = response.url; }, 1500);
+                } else if (response.url.includes('dashboard') || response.ok) {
+                    showToast('success', 'Đăng Nhập Thành Công', 'Đang đưa bạn đến sân bóng...');
+                    setTimeout(() => { window.location.href = '/dashboard'; }, 1500);
+                }
+            })
+            .catch(error => {
+                showToast('error', 'Lỗi Máy Chủ', 'Không thể kết nối đến server.');
+            });
+        });
+    });
+
+    function showToast(type, title, message) {
+        const toastContainer = document.getElementById('toastBox');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <div class="toast-icon">⚽</div>
+            <div class="toast-content">
+                <span class="toast-title">${title}</span>
+                <span class="toast-msg">${message}</span>
+            </div>
+            <div class="toast-progress"></div>
+        `;
+        toastContainer.appendChild(toast);
+        setTimeout(() => { toast.remove(); }, 5500);
+    }
+    </script>
+</body>
+</html>
