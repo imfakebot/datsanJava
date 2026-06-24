@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký - Hệ Thống Đặt Sân Chuyên Nghiệp</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body class="auth-page">
+    <div class="container register-container">
+        <div class="header">
+            <div class="logo">⚽</div>
+            <h1>Tạo Tài Khoản</h1>
+            <p>Đăng ký để trải nghiệm hệ thống</p>
+        </div>
+
+        <th:block th:if="${error}">
+            <div class="alert alert-error">
+                <span>⚠️</span> <span th:text="${error}"></span>
+            </div>
+        </th:block>
+
+        <form method="POST" action="/register" th:object="${registerRequest}">
+            <div class="form-group">
+                <label for="fullName">Họ và Tên *</label>
+                <input type="text" id="fullName" th:field="*{fullName}" required placeholder="Nhập họ và tên của bạn">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" th:field="*{email}" required placeholder="email@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Số điện thoại</label>
+                    <input type="tel" id="phone" th:field="*{phone}" placeholder="0123456789">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Tên đăng nhập *</label>
+                <input type="text" id="username" th:field="*{username}" required placeholder="Tên đăng nhập duy nhất">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mật khẩu *</label>
+                <input type="password" id="password" th:field="*{password}" required placeholder="Mật khẩu (tối thiểu 6 ký tự)">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Xác nhận mật khẩu *</label>
+                <input type="password" id="confirmPassword" th:field="*{confirmPassword}" required placeholder="Nhập lại mật khẩu">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Tạo Tài Khoản</button>
+        </form>
+
+        <div class="divider">HOẶC</div>
+
+        <button class="btn btn-secondary" onclick="window.location.href='/login'">Quay Lại Đăng Nhập</button>
+
+        <div class="footer-text">
+            Bằng cách đăng ký, bạn đồng ý với <a href="#" onclick="alert('Điều khoản sẽ được cập nhật!')">Điều khoản dịch vụ</a>
+        </div>
+    </div>
+</body>
+</html>

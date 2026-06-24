@@ -1,5 +1,6 @@
 package com.tanh.datsan.entity;
 
+
 import com.tanh.datsan.constant.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,6 +38,12 @@ public class Account {
 
     @Column(name = "verification_code_expiry")
     private java.time.LocalDateTime verificationCodeExpiry;
+
+    @Column(name = "login_otp")
+    private String loginOtp;
+
+    @Column(name = "login_otp_expiry")
+    private java.time.LocalDateTime loginOtpExpiry;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<Booking> bookings;

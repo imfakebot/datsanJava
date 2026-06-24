@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác thực OTP - Datsan</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body class="auth-page">
+    <div class="toast-container" id="toastBox"></div>
+    <div class="container otp-container">
+        <div class="otp-header">
+            <div class="logo">⚽</div>
+            <h1 th:text="${title}">Xác thực OTP</h1>
+            <p th:text="${subtitle}">Vui lòng kiểm tra email của bạn</p>
+        </div>
+
+        <th:block th:if="${info}">
+            <div class="alert alert-info" th:text="${info}"></div>
+        </th:block>
+
+        <th:block th:if="${error}">
+            <div class="alert alert-error" th:text="${error}"></div>
+        </th:block>
+
+        <form class="otp-form" id="otpForm" method="POST" th:action="${action}">
+            <div class="otp-input-group">
+                <label for="code" th:text="${labelText}">Mã xác minh</label>
+                <input type="text" id="code" name="code" required placeholder="000000" maxlength="6" inputmode="numeric">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-otp">Xác thực</button>
+        </form>
+
+        <div class="otp-footer">
+            <a href="/login">← Quay về đăng nhập</a>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const otpForm = document.getElementById('otpForm');
+        
+        if(otpForm) {
+            otpForm.addEventListener('submit', function(e) {
+                e.preventDefault(); 
+                const formData = new URLSearchParams(new FormData(this));
+                const actionUrl = this.getAttribute('action') || '/verify-otp';
+
+                fetch(actionUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                })
+                .then(response => {
+                    if (response.url.includes('error')) {
+                        showToast('error', 'Xác Thực Thất Bại', 'Mã OTP không chính xác!');
+                    } else if (response.url.includes('dashboard') || response.ok) {
+                        showToast('success', 'Đăng Nhập Thành Công', 'Đang đưa bạn đến sân bóng...');
+                        setTimeout(() => { window.location.href = '/dashboard'; }, 1500);
+                    }
+                })
+                .catch(error => {
+                    showToast('error', 'Lỗi Máy Chủ', 'Không thể kết nối đến server.');
+                });
+            });
+        }
+    });
+
+    function showToast(type, title, message) {
+        const toastContainer = document.getElementById('toastBox');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <div class="toast-icon">⚽</div>
+            <div class="toast-content">
+                <span class="toast-title">${title}</span>
+                <span class="toast-msg">${message}</span>
+            </div>
+            <div class="toast-progress"></div>
+        `;
+        toastContainer.appendChild(toast);
+        setTimeout(() => { toast.remove(); }, 5500);
+    }
+    </script>
+</body>
+</html>
