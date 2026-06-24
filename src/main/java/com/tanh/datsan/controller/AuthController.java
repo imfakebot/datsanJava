@@ -12,10 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    @GetMapping("/")
-    public String index() {
-        return "redirect:/login";
-    }
+
 
     @GetMapping("/login")
     public String loginPage(@RequestParam(required = false) String error, Model model) {
