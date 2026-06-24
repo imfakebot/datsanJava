@@ -90,6 +90,35 @@
             </div>
 
             <div class="card">
+                <h3>Create Offline Booking</h3>
+                <form th:action="@{/admin/booking/offline}" method="post" style="margin-top: 15px; max-width: 500px;">
+                    <div class="form-group">
+                        <label>Select Pitch</label>
+                        <select name="pitchId" required>
+                            <option th:each="pitch : ${pitches}" th:value="${pitch.id}" th:text="${pitch.name + ' - ' + pitch.pitchType}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Booking Date</label>
+                        <input type="date" name="bookingDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Time</label>
+                        <input type="time" name="startTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Duration (Minutes)</label>
+                        <input type="number" name="durationMinutes" value="60" min="30" step="30" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Amount Collected (VND)</label>
+                        <input type="number" name="totalAmount" value="300000" min="0" required>
+                    </div>
+                    <button type="submit" class="btn-primary" style="background-color: #f59e0b;">Book Offline</button>
+                </form>
+            </div>
+
+            <div class="card">
                 <h3>Recent Bookings</h3>
                 <table style="margin-top: 15px;">
                     <thead>

@@ -10,6 +10,8 @@ import com.tanh.datsan.repository.AccountRepository;
 import com.tanh.datsan.repository.BookingRepository;
 import com.tanh.datsan.repository.PaymentRepository;
 import com.tanh.datsan.repository.PitchRepository;
+import com.tanh.datsan.repository.TimeSlotRepository;
+import com.tanh.datsan.entity.TimeSlot;
 import com.tanh.datsan.service.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,9 @@ public class BookingController {
     @Autowired
     private PaymentService paymentService;
 
+    @Autowired
+    private TimeSlotRepository timeSlotRepository;
+
     @PostMapping("/init")
     public String initBooking(
             @RequestParam("pitchId") Long pitchId,
@@ -74,8 +79,19 @@ public class BookingController {
         LocalDateTime startTime = LocalDateTime.of(bookingDate, time);
         LocalDateTime endTime = startTime.plusMinutes((long) (duration * 60));
 
-        // Simplified price calculation: assume 300,000 VND / hour for all pitches for demo
-        double totalAmount = 300000.0 * duration;
+        // Calculate price based on TimeSlot configuration
+        java.time.DayOfWeek dayOfWeek = bookingDate.getDayOfWeek();
+        java.util.List<TimeSlot> slots = timeSlotRepository.findByPitchIdAndDayOfWeek(pitchId, dayOfWeek);
+        
+        double hourlyRate = 300000.0; // default fallback
+        for (TimeSlot slot : slots) {
+            if (!time.isBefore(slot.getStartTime()) && time.isBefore(slot.getEndTime())) {
+                hourlyRate = slot.getPrice();
+                break; // Found matching slot based on start time
+            }
+        }
+        
+        double totalAmount = hourlyRate * duration;
 
         Booking booking = new Booking();
         booking.setBookingCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase());

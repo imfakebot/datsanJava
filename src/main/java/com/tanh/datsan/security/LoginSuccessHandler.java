@@ -28,6 +28,10 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         HttpSession session = request.getSession(true);
         session.setAttribute("2fa_pending", Boolean.TRUE);
         session.setAttribute("2fa_user", username);
+        
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        session.setAttribute("is_admin", isAdmin);
 
         // Redirect to OTP entry page
         response.sendRedirect(request.getContextPath() + "/login-otp");
