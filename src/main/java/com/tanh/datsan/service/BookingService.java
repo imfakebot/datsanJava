@@ -53,7 +53,7 @@ public class BookingService {
         }
         
         if (booking.getBookingCode() == null || booking.getBookingCode().isEmpty()) {
-            booking.setBookingCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+            booking.setBookingCode(generateBookingCode());
         }
         
         booking.setStatus(BookingStatus.PENDING_PAYMENT);
@@ -67,7 +67,7 @@ public class BookingService {
         }
         
         if (booking.getBookingCode() == null || booking.getBookingCode().isEmpty()) {
-            booking.setBookingCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+            booking.setBookingCode(generateBookingCode());
         }
         
         booking.setStatus(BookingStatus.CONFIRMED);
@@ -115,6 +115,12 @@ public class BookingService {
         if (!confirmedBookings.isEmpty()) {
             bookingRepository.saveAll(confirmedBookings);
         }
+    }
+
+    private String generateBookingCode() {
+        String datePart = LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String randomPart = UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+        return datePart + "-" + randomPart;
     }
 
 }

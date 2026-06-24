@@ -1,5 +1,6 @@
 package com.tanh.datsan.entity;
 
+
 import com.tanh.datsan.constant.Role;
 import jakarta.persistence.*;
 import lombok.*;
