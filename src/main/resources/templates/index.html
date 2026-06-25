@@ -43,7 +43,11 @@
 
         <!-- Search Form -->
         <div class="search-container" style="margin-bottom: 30px; text-align: center;">
-            <form action="/" method="get" style="display: inline-flex; width: 100%; max-width: 500px; gap: 10px;">
+            <form action="/" method="get" style="display: inline-flex; width: 100%; max-width: 700px; gap: 10px;">
+                <select name="filterLocation" style="padding: 12px 15px; border-radius: 25px; border: 1px solid #e2e8f0; outline: none; font-size: 16px; background: white; min-width: 150px;">
+                    <option value="">-- Chọn khu vực --</option>
+                    <option th:each="loc : ${locations}" th:value="${loc}" th:text="${loc}" th:selected="${loc == selectedLocation}"></option>
+                </select>
                 <input type="text" name="search" th:value="${searchKeyword}" placeholder="Tìm theo tên hoặc địa điểm sân..." 
                        style="flex: 1; padding: 12px 15px; border-radius: 25px; border: 1px solid #e2e8f0; outline: none; font-size: 16px;">
                 <button type="submit" style="padding: 12px 25px; border-radius: 25px; border: none; background: #667eea; color: white; font-weight: 600; cursor: pointer;">Tìm kiếm</button>
@@ -61,9 +65,9 @@
 
                 <!-- Image -->
                 <a th:href="@{/pitch/{id}(id=${pitch.id})}" class="pitch-image-wrapper">
-                    <img th:if="${pitch.imageUrl != null}" th:src="${pitch.imageUrl}" th:alt="${pitch.name}"
+                    <img th:if="${pitch.images != null and !pitch.images.empty}" th:src="${pitch.images[0].imageUrl}" th:alt="${pitch.name}"
                         class="pitch-image">
-                    <div th:if="${pitch.imageUrl == null}" class="pitch-image-placeholder">
+                    <div th:if="${pitch.images == null or pitch.images.empty}" class="pitch-image-placeholder">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -85,6 +89,12 @@
                                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         <span th:text="${pitch.location}">Location</span>
+                    </div>
+                    <div class="pitch-distance" th:if="${pitch.distanceToUser != null}" style="margin-top: 5px; color: #10b981; font-weight: 500; font-size: 0.9em; display: flex; align-items: center; gap: 5px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                        <span th:text="'Cách bạn: ' + ${#numbers.formatDecimal(pitch.distanceToUser, 1, 'COMMA', 1, 'POINT')} + ' km'">Cách bạn 2.5 km</span>
                     </div>
 
                     <div class="pitch-footer">
@@ -113,6 +123,21 @@
         </div>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            // Chỉ yêu cầu vị trí nếu chưa có userLat/userLng trên URL để tránh loop liên tục
+            if (!urlParams.has('userLat') && navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    urlParams.set('userLat', position.coords.latitude);
+                    urlParams.set('userLng', position.coords.longitude);
+                    window.location.search = urlParams.toString();
+                }, function(error) {
+                    console.log("Geolocation permission denied or failed.");
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

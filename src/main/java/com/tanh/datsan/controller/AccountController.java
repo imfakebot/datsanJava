@@ -1,70 +1,89 @@
 package com.tanh.datsan.controller;
 
 import com.tanh.datsan.entity.Account;
+import com.tanh.datsan.entity.Pitch;
+import com.tanh.datsan.repository.AccountRepository;
+import com.tanh.datsan.service.AccountService;
+import com.tanh.datsan.service.PitchService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.tanh.datsan.repository.PitchRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.security.Principal;
+import java.util.List;
 
 @Controller
 public class AccountController {
 
-    private final PitchRepository pitchRepository;
-    private final com.tanh.datsan.repository.AccountRepository accountRepository;
-    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    private final PitchService pitchService;
+    private final AccountService accountService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AccountController(PitchRepository pitchRepository, 
-                             com.tanh.datsan.repository.AccountRepository accountRepository,
-                             org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
-        this.pitchRepository = pitchRepository;
-        this.accountRepository = accountRepository;
+    public AccountController(PitchService pitchService, 
+                             AccountService accountService,
+                             PasswordEncoder passwordEncoder) {
+        this.pitchService = pitchService;
+        this.accountService = accountService;
         this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/")
-    public String showHomePage(@org.springframework.web.bind.annotation.RequestParam(required = false) String search, Model model, java.security.Principal principal) {
+    public String showHomePage(@RequestParam(required = false) String search,
+                               @RequestParam(required = false) String filterLocation,
+                               @RequestParam(required = false) Double userLat,
+                               @RequestParam(required = false) Double userLng,
+                               Model model, Principal principal) {
         if (principal != null) {
-            Account userAccount = accountRepository.findByUsername(principal.getName()).orElse(null);
+            Account userAccount = accountService.findByUsername(principal.getName()).orElse(null);
             model.addAttribute("account", userAccount != null ? userAccount : new Account());
         } else {
             model.addAttribute("account", new Account());
         }
         
-        if (search != null && !search.trim().isEmpty()) {
-            model.addAttribute("pitches", pitchRepository.findByNameContainingIgnoreCaseOrLocationContainingIgnoreCase(search.trim(), search.trim()));
-            model.addAttribute("searchKeyword", search.trim());
-        } else {
-            model.addAttribute("pitches", pitchRepository.findAll());
+        List<Pitch> pitches = pitchService.findHomePitches(search, filterLocation, userLat, userLng);
+        model.addAttribute("locations", pitchService.findDistinctLocations());
+        
+        if (filterLocation != null && !filterLocation.trim().isEmpty()) {
+            model.addAttribute("selectedLocation", filterLocation.trim());
         }
+        if (search != null && !search.trim().isEmpty()) {
+            model.addAttribute("searchKeyword", search.trim());
+        }
+
+        model.addAttribute("pitches", pitches);
         return "index";
     }
-    @org.springframework.web.bind.annotation.PostMapping("/profile/update")
-    public String updateProfile(@org.springframework.web.bind.annotation.RequestParam String fullName,
-                                @org.springframework.web.bind.annotation.RequestParam String phone,
-                                java.security.Principal principal,
-                                org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+
+    @PostMapping("/profile/update")
+    public String updateProfile(@RequestParam String fullName,
+                                @RequestParam String phone,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
         if (principal == null) return "redirect:/login";
-        Account userAccount = accountRepository.findByUsername(principal.getName()).orElse(null);
+        Account userAccount = accountService.findByUsername(principal.getName()).orElse(null);
         if (userAccount != null) {
             userAccount.setFullName(fullName);
             userAccount.setPhone(phone);
-            accountRepository.save(userAccount);
+            accountService.save(userAccount);
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật thông tin thành công!");
         }
         return "redirect:/dashboard";
     }
 
-    @org.springframework.web.bind.annotation.PostMapping("/profile/password")
-    public String changePassword(@org.springframework.web.bind.annotation.RequestParam String oldPassword,
-                                 @org.springframework.web.bind.annotation.RequestParam String newPassword,
-                                 @org.springframework.web.bind.annotation.RequestParam String confirmPassword,
-                                 java.security.Principal principal,
-                                 org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+    @PostMapping("/profile/password")
+    public String changePassword(@RequestParam String oldPassword,
+                                 @RequestParam String newPassword,
+                                 @RequestParam String confirmPassword,
+                                 Principal principal,
+                                 RedirectAttributes redirectAttributes) {
         if (principal == null) return "redirect:/login";
-        Account userAccount = accountRepository.findByUsername(principal.getName()).orElse(null);
+        Account userAccount = accountService.findByUsername(principal.getName()).orElse(null);
         if (userAccount != null) {
             if (!passwordEncoder.matches(oldPassword, userAccount.getPassword())) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu cũ không chính xác!");
@@ -75,7 +94,7 @@ public class AccountController {
                 return "redirect:/dashboard";
             }
             userAccount.setPassword(passwordEncoder.encode(newPassword));
-            accountRepository.save(userAccount);
+            accountService.save(userAccount);
             redirectAttributes.addFlashAttribute("successMessage", "Đổi mật khẩu thành công!");
         }
         return "redirect:/dashboard";

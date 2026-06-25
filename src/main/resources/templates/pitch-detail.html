@@ -44,9 +44,19 @@
         <div class="pitch-detail-wrapper">
             
             <!-- Left Column: Image -->
-            <div class="pitch-detail-image-box">
-                <img th:if="${pitch.imageUrl != null}" th:src="${pitch.imageUrl}" th:alt="${pitch.name}" class="pitch-detail-img">
-                <div th:if="${pitch.imageUrl == null}" class="pitch-detail-img-placeholder">
+            <div class="pitch-detail-image-box" th:with="images=${pitch.images}">
+                <div th:if="${images != null and !images.isEmpty()}" class="carousel-container">
+                    <div class="carousel-track">
+                        <img th:each="img, iterStat : ${images}" th:src="${img.imageUrl}" th:alt="${pitch.name}" class="pitch-detail-img carousel-slide" style="display:block; cursor:pointer;" onclick="openModal(this.src)">
+                    </div>
+                    <button th:if="${images.size() > 1}" class="carousel-btn prev" onclick="moveSlide(-1)">&#10094;</button>
+                    <button th:if="${images.size() > 1}" class="carousel-btn next" onclick="moveSlide(1)">&#10095;</button>
+                    
+                    <div th:if="${images.size() > 1}" class="carousel-dots">
+                        <span th:each="img, iterStat : ${images}" class="dot" th:classappend="${iterStat.index == 0 ? 'active' : ''}" th:onclick="'currentSlide(' + ${iterStat.index} + ')'"></span>
+                    </div>
+                </div>
+                <div th:if="${images == null or images.isEmpty()}" class="pitch-detail-img-placeholder">
                     <span>No Image Available</span>
                 </div>
             </div>
@@ -71,20 +81,32 @@
                     <span th:text="${pitch.location}">Location</span>
                 </div>
 
-                <div class="pitch-detail-description">
-                    <h3>About this pitch</h3>
-                    <p>Experience top-tier football on our premium artificial turf. Equipped with high-quality LED lighting for night matches, secure parking, and clean changing rooms with showers. Perfect for casual games, tournaments, or team training sessions.</p>
-                </div>
+                <div th:if="${(pitch.description != null and !pitch.description.isEmpty()) or (pitch.amenities != null and !pitch.amenities.isEmpty())}">
+                    <div class="pitch-detail-description" th:if="${pitch.description != null and !pitch.description.isEmpty()}">
+                        <h3>Thông tin sân</h3>
+                        <div th:utext="${pitch.description}"></div>
+                    </div>
 
-                <div class="pitch-detail-amenities">
-                    <h3>Amenities</h3>
-                    <ul class="amenities-list">
-                        <li>⚽ Premium Artificial Turf</li>
-                        <li>💡 LED Floodlights</li>
-                        <li>🚿 Changing Rooms & Showers</li>
-                        <li>🚗 Free Secure Parking</li>
-                        <li>🥤 Refreshment Stand</li>
-                    </ul>
+                    <div class="pitch-detail-amenities" th:if="${pitch.amenities != null and !pitch.amenities.isEmpty()}" style="margin-top: 20px;">
+                        <h3>Tiện ích</h3>
+                        <ul class="amenities-list">
+                            <li th:each="amenity : ${#strings.listSplit(pitch.amenities, ',')}" th:text="${#strings.trim(amenity)}"></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div th:unless="${(pitch.description != null and !pitch.description.isEmpty()) or (pitch.amenities != null and !pitch.amenities.isEmpty())}">
+                    <div class="pitch-detail-description">
+                        <h3>Thông tin sân & Tiện ích</h3>
+                        <p>Sân bóng chất lượng cao với mặt cỏ nhân tạo đạt chuẩn. Được trang bị hệ thống đèn LED chiếu sáng hiện đại, bãi đỗ xe an toàn và phòng thay đồ sạch sẽ. Phù hợp cho các trận đấu giao hữu, giải đấu hoặc tập luyện.</p>
+                        <ul class="amenities-list" style="margin-top: 15px;">
+                            <li>⚽ Cỏ nhân tạo cao cấp</li>
+                            <li>💡 Đèn LED chiếu sáng</li>
+                            <li>🚿 Phòng thay đồ & tắm rửa</li>
+                            <li>🚗 Bãi đỗ xe miễn phí</li>
+                            <li>🥤 Quầy nước giải khát</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="pitch-detail-pricing">
@@ -96,26 +118,34 @@
                     <form th:action="@{/booking/init}" method="post" style="margin-top: 15px; width: 100%;">
                         <input type="hidden" name="pitchId" th:value="${pitch.id}" />
                         
+                        <div th:if="${param.error != null and param.error[0] == 'maintenance'}" style="background-color: #fee2e2; color: #b91c1c; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
+                            This pitch is currently under maintenance.
+                        </div>
+
+                        <div th:if="${pitch.status == 'Maintenance'}" style="background-color: #fef3c7; color: #b45309; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
+                            Booking is disabled because the pitch is under maintenance.
+                        </div>
+
                         <div style="margin-bottom: 10px;">
                             <label for="bookingDate" style="display: block; margin-bottom: 5px; font-weight: 500;">Select Date</label>
-                            <input type="date" id="bookingDate" name="bookingDate" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" />
+                            <input type="date" id="bookingDate" name="bookingDate" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" th:disabled="${pitch.status == 'Maintenance'}" />
                         </div>
                         
                         <div style="margin-bottom: 10px;">
                             <label for="startTime" style="display: block; margin-bottom: 5px; font-weight: 500;">Select Start Time</label>
-                            <input type="time" id="startTime" name="startTime" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" />
+                            <input type="time" id="startTime" name="startTime" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" th:disabled="${pitch.status == 'Maintenance'}" />
                         </div>
 
                         <div style="margin-bottom: 15px;">
                             <label for="duration" style="display: block; margin-bottom: 5px; font-weight: 500;">Duration (Hours)</label>
-                            <select id="duration" name="duration" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                            <select id="duration" name="duration" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" th:disabled="${pitch.status == 'Maintenance'}">
                                 <option value="1">1 Hour</option>
                                 <option value="1.5">1.5 Hours</option>
                                 <option value="2">2 Hours</option>
                             </select>
                         </div>
                         
-                        <button type="submit" class="book-now-btn-large" style="width: 100%;">Book & Pay via VNPAY</button>
+                        <button type="submit" class="book-now-btn-large" style="width: 100%;" th:disabled="${pitch.status == 'Maintenance'}">Book & Pay via VNPAY</button>
                     </form>
                 </div>
             </div>
@@ -139,6 +169,74 @@
         </div>
     </footer>
 
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modalImg">
+    </div>
+
+    <script>
+        // Modal functions
+        function openModal(src) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImg");
+            modal.style.display = "block";
+            modalImg.src = src;
+        }
+
+        function closeModal() {
+            document.getElementById("imageModal").style.display = "none";
+        }
+
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.dot');
+        const track = document.querySelector('.carousel-track');
+        
+        function showSlide(n) {
+            if (!slides || slides.length === 0) return;
+            if (n >= slides.length) slideIndex = 0;
+            if (n < 0) slideIndex = slides.length - 1;
+            
+            if (track) {
+                track.style.transform = `translateX(-${slideIndex * 100}%)`;
+            }
+            
+            dots.forEach((dot, i) => {
+                dot.classList.remove('active');
+            });
+            if(dots[slideIndex]) dots[slideIndex].classList.add('active');
+        }
+
+        function moveSlide(n) {
+            slideIndex += n;
+            showSlide(slideIndex);
+        }
+
+        function currentSlide(n) {
+            slideIndex = n;
+            showSlide(slideIndex);
+        }
+    </script>
+    <style>
+        .carousel-container { position: relative; max-width: 100%; overflow: hidden; border-radius: 12px; }
+        .carousel-track { width: 100%; display: flex; transition: transform 0.5s ease-in-out; }
+        .carousel-slide { width: 100%; height: 400px; object-fit: cover; flex-shrink: 0; }
+        .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; padding: 10px 15px; cursor: pointer; font-size: 18px; border-radius: 5px; z-index: 10; transition: background 0.2s; }
+        .carousel-btn:hover { background: rgba(0,0,0,0.8); }
+        .prev { left: 10px; }
+        .next { right: 10px; }
+        .carousel-dots { text-align: center; position: absolute; bottom: 15px; width: 100%; z-index: 10; }
+        .dot { display: inline-block; width: 12px; height: 12px; margin: 0 5px; background: rgba(255,255,255,0.5); border-radius: 50%; cursor: pointer; transition: background 0.2s; }
+        .dot.active { background: white; }
+
+        /* Modal styling */
+        .modal { display: none; position: fixed; z-index: 1000; padding-top: 50px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.9); }
+        .modal-content { margin: auto; display: block; max-width: 90%; max-height: 80vh; object-fit: contain; border-radius: 8px; animation: zoom 0.3s; }
+        .modal-close { position: absolute; top: 20px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; }
+        .modal-close:hover { color: #bbb; }
+        @keyframes zoom { from {transform:scale(0.8)} to {transform:scale(1)} }
+    </style>
 </body>
 
 </html>

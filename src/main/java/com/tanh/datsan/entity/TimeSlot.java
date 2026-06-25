@@ -27,7 +27,7 @@ public class TimeSlot {
     private LocalTime endTime;
 
     @Column(name = "is_golden_hour", nullable = false)
-    private boolean isGoldenHour;
+    private boolean goldenHour;
 
     @Column(nullable = false)
     private Double price;

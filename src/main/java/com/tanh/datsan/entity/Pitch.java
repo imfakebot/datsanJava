@@ -24,7 +24,21 @@ public class Pitch {
     
     private String pitchType;
     private String status;
-    private String imageUrl;
+    
+    @OneToMany(mappedBy = "pitch", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PitchImage> images = new java.util.ArrayList<>();
+
+    @Transient
+    private String rawImageUrls;
+    
+    @Column(columnDefinition = "TEXT")
+    private String description;
+    
+    @Column(columnDefinition = "TEXT")
+    private String amenities;
+
+    @Transient
+    private Double distanceToUser;
 
     @OneToMany(mappedBy = "pitch", cascade = CascadeType.ALL)
     private List<TimeSlot> timeSlots;

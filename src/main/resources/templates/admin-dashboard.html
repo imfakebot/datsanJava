@@ -97,8 +97,8 @@
                         <input type="number" name="durationMinutes" value="60" min="30" step="30" required>
                     </div>
                     <div class="form-group">
-                        <label>Total Amount Collected (VND)</label>
-                        <input type="number" name="totalAmount" value="300000" min="0" required>
+                        <button type="button" class="btn-primary" style="background-color: #6366f1; margin-bottom: 10px;" onclick="calculateAmount()">Tính số tiền</button>
+                        <p id="calculatedAmount" style="font-weight: bold; color: #10b981; display: none; font-size: 18px;">Tổng tiền: 0 VND</p>
                     </div>
                     <button type="submit" class="btn-primary" style="background-color: #f59e0b;">Book Offline</button>
                 </form>
@@ -135,5 +135,31 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        function calculateAmount() {
+            const pitchId = document.querySelector('select[name="pitchId"]').value;
+            const bookingDate = document.querySelector('input[name="bookingDate"]').value;
+            const startTime = document.querySelector('input[name="startTime"]').value;
+            const duration = document.querySelector('input[name="durationMinutes"]').value;
+            
+            if(!pitchId || !bookingDate || !startTime || !duration) {
+                alert("Vui lòng nhập đầy đủ các trường Sân, Ngày, Giờ bắt đầu và Thời lượng để tính tiền.");
+                return;
+            }
+            
+            fetch(`/admin/booking/calculate?pitchId=${pitchId}&bookingDate=${bookingDate}&startTime=${startTime}&durationMinutes=${duration}`)
+                .then(res => res.text())
+                .then(amount => {
+                    const p = document.getElementById('calculatedAmount');
+                    p.style.display = 'block';
+                    p.innerText = 'Tổng tiền dự kiến: ' + new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Lỗi khi tính toán số tiền");
+                });
+        }
+    </script>
 </body>
 </html>

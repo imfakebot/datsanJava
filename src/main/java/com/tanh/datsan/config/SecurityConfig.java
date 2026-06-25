@@ -87,6 +87,12 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
                         .permitAll()
+                )
+                .rememberMe(remember -> remember
+                        .key("datsan_super_secret_key_2026")
+                        .rememberMeParameter("remember") // Phù hợp với name="remember" trong login.html
+                        .tokenValiditySeconds(7 * 24 * 60 * 60) // Nhớ trong 7 ngày
+                        .userDetailsService(userDetailsService)
                 );
 
         return http.build();

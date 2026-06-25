@@ -3,93 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng Điều Khiển - Đặt Sân Đá Bóng</title>
-    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <title>Bảng Điều Khiển - Đặt Sân</title>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
 </head>
 <body class="dashboard-page">
     <nav class="navbar">
         <a href="/dashboard" class="navbar-brand">
-            <span>⚽</span>
+            <i class="ph ph-soccer-ball"></i>
             <div>Đặt Sân Bóng</div>
         </a>
         <div class="navbar-right">
             <div class="user-info">
-                Xin chào, <strong sec:authentication="name">Huy</strong>!
+                Xin chào, <strong sec:authentication="name">User</strong>
             </div>
-            <a href="/logout" class="logout-btn">Đăng Xuất</a>
+            <a href="/logout" class="logout-btn">
+                Đăng xuất <i class="ph ph-sign-out"></i>
+            </a>
         </div>
     </nav>
 
     <div class="dashboard-container">
-        <div th:if="${successMessage}" style="background-color: #d1fae5; color: #065f46; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <!-- Messages -->
+        <div th:if="${successMessage}" class="alert alert-success">
+            <i class="ph-fill ph-check-circle"></i>
             <strong th:text="${successMessage}">Thành công!</strong>
         </div>
-        <div th:if="${errorMessage}" style="background-color: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <i class="ph-fill ph-warning-circle"></i>
             <strong th:text="${errorMessage}">Lỗi!</strong>
         </div>
-        <div class="welcome-section">
-            <div class="welcome-header">
-                <div class="welcome-icon">⚽</div>
-                <div class="welcome-text">
-                    <h1>Chào mừng bạn trở lại!</h1>
-                    <p>Khám phá những sân bóng tốt nhất gần bạn và đặt sân ngay hôm nay</p>
-                </div>
-            </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">📍</div>
-                    <div class="stat-value">25+</div>
-                    <div class="stat-label">Sân Bóng Khả Dụng</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">📅</div>
-                    <div class="stat-value" th:text="${totalBookings}">0</div>
-                    <div class="stat-label">Lượt Đặt Của Bạn</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">⭐</div>
-                    <div class="stat-value">4.8</div>
-                    <div class="stat-label">Đánh Giá Trung Bình</div>
-                </div>
-            </div>
-        </div>
+        <h2 class="section-header">
+            <i class="ph ph-calendar-check"></i> Lịch Sử Đặt Sân
+        </h2>
 
-        <h2 style="color: white; margin-bottom: 20px;">📅 Lịch Sử Đặt Sân</h2>
-        <div class="table-container" style="background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; color: white; text-align: left;">
+        <div class="table-container">
+            <table>
                 <thead>
-                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.2);">
-                        <th style="padding: 15px 10px;">Mã Đặt Sân</th>
-                        <th style="padding: 15px 10px;">Sân Bóng</th>
-                        <th style="padding: 15px 10px;">Ngày Tạo Đơn</th>
-                        <th style="padding: 15px 10px;">Ngày Đá</th>
-                        <th style="padding: 15px 10px;">Thời Gian</th>
-                        <th style="padding: 15px 10px;">Trạng Thái</th>
-                        <th style="padding: 15px 10px;">Tổng Tiền</th>
-                        <th style="padding: 15px 10px;">Hành động</th>
+                    <tr>
+                        <th>Mã Đặt Sân</th>
+                        <th>Sân Bóng</th>
+                        <th>Ngày Tạo Đơn</th>
+                        <th>Ngày Đá</th>
+                        <th>Thời Gian</th>
+                        <th>Trạng Thái</th>
+                        <th>Tổng Tiền</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:if="${bookings == null or bookings.empty}">
-                        <td colspan="8" style="padding: 20px; text-align: center; color: rgba(255,255,255,0.6);">Bạn chưa có lịch đặt sân nào.</td>
+                        <td colspan="8" class="empty-state">
+                            Bạn chưa có lịch đặt sân nào.
+                        </td>
                     </tr>
-                    <tr th:each="b : ${bookings}" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                        <td style="padding: 15px 10px; font-weight: bold; color: #a5b4fc;" th:text="${b.bookingCode}">CODE</td>
-                        <td style="padding: 15px 10px;" th:text="${b.pitch.name}">Pitch Name</td>
-                        <td style="padding: 15px 10px;" th:text="${#temporals.format(b.createdAt, 'dd/MM/yyyy HH:mm')}">Created At</td>
-                        <td style="padding: 15px 10px;" th:text="${#temporals.format(b.bookingDate, 'dd/MM/yyyy')}">Date</td>
-                        <td style="padding: 15px 10px;" th:text="${#temporals.format(b.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(b.endTime, 'HH:mm')}">Time</td>
-                        <td style="padding: 15px 10px;">
-                            <span style="padding: 5px 10px; border-radius: 20px; font-size: 0.85em; font-weight: bold;"
+                    <tr th:each="b : ${bookings}">
+                        <td style="font-family: monospace; color: var(--zinc-400);" th:text="${b.bookingCode}">CODE</td>
+                        <td style="font-weight: 500;" th:text="${b.pitch.name}">Pitch Name</td>
+                        <td th:text="${#temporals.format(b.createdAt, 'dd/MM/yyyy HH:mm')}">Created At</td>
+                        <td th:text="${#temporals.format(b.bookingDate, 'dd/MM/yyyy')}">Date</td>
+                        <td th:text="${#temporals.format(b.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(b.endTime, 'HH:mm')}">Time</td>
+                        <td>
+                            <span class="badge"
                                   th:classappend="${b.status.name() == 'PAID' or b.status.name() == 'CONFIRMED' ? 'badge-paid' : (b.status.name() == 'PENDING_PAYMENT' ? 'badge-pending' : 'badge-cancelled')}"
                                   th:text="${b.status}">Status</span>
                         </td>
-                        <td style="padding: 15px 10px;" th:text="${#numbers.formatDecimal(b.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'">Amount</td>
-                        <td style="padding: 15px 10px;">
+                        <td th:text="${#numbers.formatDecimal(b.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'">Amount</td>
+                        <td>
                             <form th:if="${b.status.name() == 'PENDING_PAYMENT'}" th:action="@{/booking/{id}/cancel(id=${b.id})}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn này?');">
-                                <button type="submit" style="padding: 5px 10px; border-radius: 5px; border: none; background: #ef4444; color: white; cursor: pointer;">Hủy</button>
+                                <button type="submit" class="btn btn-danger">Hủy</button>
                             </form>
                         </td>
                     </tr>
@@ -97,56 +81,60 @@
             </table>
         </div>
         
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 40px;">
+        <div class="bento-grid">
             <!-- Profile Update Form -->
-            <div style="background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; color: white;">
-                <h3 style="margin-bottom: 15px;">Cập nhật Thông tin</h3>
+            <div class="bento-card">
+                <h3>Cập nhật Thông tin</h3>
                 <form action="/profile/update" method="post">
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px;">Họ và Tên</label>
-                        <input type="text" name="fullName" th:value="${account.fullName}" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none;">
+                    <div class="form-group">
+                        <label>Họ và Tên</label>
+                        <input type="text" name="fullName" class="form-input" th:value="${account.fullName}" required>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px;">Số điện thoại</label>
-                        <input type="text" name="phone" th:value="${account.phone}" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none;">
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="text" name="phone" class="form-input" th:value="${account.phone}" required>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px;">Email (Không thể thay đổi)</label>
-                        <input type="email" name="email" th:value="${account.email}" readonly style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none; background: rgba(255,255,255,0.5); cursor: not-allowed; color: #333;">
+                    <div class="form-group">
+                        <label>Email (Không thể thay đổi)</label>
+                        <input type="email" name="email" class="form-input" th:value="${account.email}" readonly>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="padding: 10px 20px; border-radius: 8px; font-weight: bold; background: #667eea; color: white; border: none; cursor: pointer;">Lưu Thông Tin</button>
+                    <button type="submit" class="btn btn-outline">Lưu Thông Tin</button>
                 </form>
             </div>
 
             <!-- Change Password Form -->
-            <div style="background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; color: white;">
-                <h3 style="margin-bottom: 15px;">Đổi Mật Khẩu</h3>
+            <div class="bento-card">
+                <h3>Đổi Mật Khẩu</h3>
                 <form action="/profile/password" method="post">
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px;">Mật khẩu cũ</label>
-                        <input type="password" name="oldPassword" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none;">
+                    <div class="form-group">
+                        <label>Mật khẩu cũ</label>
+                        <input type="password" name="oldPassword" class="form-input" required>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px;">Mật khẩu mới</label>
-                        <input type="password" name="newPassword" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none;">
+                    <div class="form-group">
+                        <label>Mật khẩu mới</label>
+                        <input type="password" name="newPassword" class="form-input" required>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px;">Xác nhận mật khẩu mới</label>
-                        <input type="password" name="confirmPassword" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none;">
+                    <div class="form-group">
+                        <label>Xác nhận mật khẩu mới</label>
+                        <input type="password" name="confirmPassword" class="form-input" required>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="padding: 10px 20px; border-radius: 8px; font-weight: bold; background: #ed8936; color: white; border: none; cursor: pointer;">Đổi Mật Khẩu</button>
+                    <button type="submit" class="btn btn-outline">Đổi Mật Khẩu</button>
                 </form>
             </div>
         </div>
 
-        <div style="margin-top: 30px; text-align: center;">
-            <a href="/" class="btn btn-primary" style="padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: bold; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: inline-block;">Khám Phá Thêm Sân</a>
+        <div class="actions">
+            <a href="/" class="btn btn-primary">
+                Khám Phá Sân Bóng <i class="ph ph-arrow-right"></i>
+            </a>
         </div>
     </div>
 
     <footer class="dashboard-footer">
         <p>&copy; 2026 Hệ Thống Đặt Sân Đá Bóng. Tất cả các quyền được bảo lưu.</p>
-        <p style="font-size: 12px; margin-top: 10px; opacity: 0.8;">Phát triển bởi Team Datsan | <a href="#" style="color: #667eea; text-decoration: none;">Chính sách riêng tư</a> | <a href="#" style="color: #667eea; text-decoration: none;">Điều khoản dịch vụ</a></p>
+        <p>
+            <a href="#">Chính sách riêng tư</a> | <a href="#">Điều khoản dịch vụ</a>
+        </p>
     </footer>
 </body>
 </html>

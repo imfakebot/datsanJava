@@ -1,19 +1,26 @@
 package com.tanh.datsan.controller;
 
 import com.tanh.datsan.dto.RegisterRequest;
+import com.tanh.datsan.entity.Account;
+import com.tanh.datsan.entity.Booking;
+import com.tanh.datsan.service.AccountService;
 import com.tanh.datsan.service.AuthService;
+import com.tanh.datsan.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    private final com.tanh.datsan.repository.BookingRepository bookingRepository;
-    private final com.tanh.datsan.repository.AccountRepository accountRepository;
+    private final BookingService bookingService;
+    private final AccountService accountService;
 
 
     @GetMapping("/login")
@@ -116,6 +123,11 @@ public class AuthController {
             session.setAttribute("2fa_passed", Boolean.TRUE);
             session.removeAttribute("2fa_pending");
             session.removeAttribute("2fa_user");
+            
+            Boolean isAdmin = (Boolean) session.getAttribute("is_admin");
+            if (Boolean.TRUE.equals(isAdmin)) {
+                return "redirect:/admin/dashboard";
+            }
             return "redirect:/";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
@@ -128,17 +140,17 @@ public class AuthController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model, java.security.Principal principal) {
+    public String dashboard(Model model, Principal principal) {
         if (principal == null) {
             return "redirect:/login";
         }
-        com.tanh.datsan.entity.Account account = accountRepository.findByUsername(principal.getName()).orElse(null);
+        Account account = accountService.findByUsername(principal.getName()).orElse(null);
         if (account == null) {
             return "redirect:/login";
         }
         model.addAttribute("account", account);
         
-        java.util.List<com.tanh.datsan.entity.Booking> bookings = bookingRepository.findByAccountIdOrderByCreatedAtDesc(account.getId());
+        List<Booking> bookings = bookingService.findByAccountIdOrderByCreatedAtDesc(account.getId());
         model.addAttribute("bookings", bookings);
         model.addAttribute("totalBookings", bookings.size());
         

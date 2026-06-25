@@ -24,6 +24,22 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
 
+    public List<Booking> findAll() {
+        return bookingRepository.findAll();
+    }
+
+    public List<Booking> findByAccountIdOrderByCreatedAtDesc(Long accountId) {
+        return bookingRepository.findByAccountIdOrderByCreatedAtDesc(accountId);
+    }
+
+    public java.util.Optional<Booking> findById(Long id) {
+        return bookingRepository.findById(id);
+    }
+
+    public Booking save(Booking booking) {
+        return bookingRepository.save(booking);
+    }
+
     public boolean checkAvailability(Long pitchId, LocalDateTime startTime, LocalDateTime endTime) {
         List<BookingStatus> conflictingStatuses = Arrays.asList(
                 BookingStatus.PENDING_PAYMENT,

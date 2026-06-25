@@ -1,7 +1,9 @@
 package com.tanh.datsan.controller;
 
+import com.tanh.datsan.entity.Account;
 import com.tanh.datsan.entity.Pitch;
-import com.tanh.datsan.repository.PitchRepository;
+import com.tanh.datsan.service.AccountService;
+import com.tanh.datsan.service.PitchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,26 +11,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.security.Principal;
+
 @Controller
 @RequestMapping("/pitch")
 public class PitchController {
 
     @Autowired
-    private PitchRepository pitchRepository;
+    private PitchService pitchService;
 
     @Autowired
-    private com.tanh.datsan.repository.AccountRepository accountRepository;
+    private AccountService accountService;
 
     @GetMapping("/{id}")
-    public String showPitchDetail(@PathVariable Long id, Model model, java.security.Principal principal) {
+    public String showPitchDetail(@PathVariable Long id, Model model, Principal principal) {
         if (principal != null) {
-            com.tanh.datsan.entity.Account userAccount = accountRepository.findByUsername(principal.getName()).orElse(null);
-            model.addAttribute("account", userAccount != null ? userAccount : new com.tanh.datsan.entity.Account());
+            Account userAccount = accountService.findByUsername(principal.getName()).orElse(null);
+            model.addAttribute("account", userAccount != null ? userAccount : new Account());
         } else {
-            model.addAttribute("account", new com.tanh.datsan.entity.Account());
+            model.addAttribute("account", new Account());
         }
 
-        Pitch pitch = pitchRepository.findById(id).orElse(null);
+        Pitch pitch = pitchService.findById(id).orElse(null);
         if (pitch == null) {
             return "redirect:/";
         }

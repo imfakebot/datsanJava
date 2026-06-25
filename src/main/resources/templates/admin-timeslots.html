@@ -62,7 +62,7 @@
 
                     <div style="margin-bottom: 20px;">
                         <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                            <input type="checkbox" th:field="*{isGoldenHour}" style="width: 20px; height: 20px;">
+                            <input type="checkbox" th:field="*{goldenHour}" style="width: 20px; height: 20px;">
                             <span>Giờ Vàng (Đánh dấu nổi bật)</span>
                         </label>
                     </div>
@@ -93,8 +93,8 @@
                             <td style="padding: 10px;" th:text="${slot.startTime + ' - ' + slot.endTime}">08:00 - 10:00</td>
                             <td style="padding: 10px;" th:text="${#numbers.formatDecimal(slot.price, 0, 'COMMA', 0, 'POINT')} + ' VND'">300,000 VND</td>
                             <td style="padding: 10px;">
-                                <span th:if="${slot.isGoldenHour}" style="background: #fbbf24; color: #78350f; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Giờ Vàng</span>
-                                <span th:if="${!slot.isGoldenHour}" style="background: #9ca3af; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px;">Thường</span>
+                                <span th:if="${slot.goldenHour}" style="background: #fbbf24; color: #78350f; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Giờ Vàng</span>
+                                <span th:if="${!slot.goldenHour}" style="background: #9ca3af; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px;">Thường</span>
                             </td>
                             <td style="padding: 10px; text-align: center;">
                                 <form th:action="@{/admin/pitches/{pitchId}/timeslots/{slotId}/delete(pitchId=${pitch.id}, slotId=${slot.id})}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa khung giờ này?');">

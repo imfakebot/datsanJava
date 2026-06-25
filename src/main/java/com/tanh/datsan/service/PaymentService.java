@@ -17,6 +17,13 @@ public class PaymentService {
     @Autowired
     private VNPayConfig vnPayConfig;
 
+    @Autowired
+    private com.tanh.datsan.repository.PaymentRepository paymentRepository;
+
+    public com.tanh.datsan.entity.Payment save(com.tanh.datsan.entity.Payment payment) {
+        return paymentRepository.save(payment);
+    }
+
     public String createVnPayUrl(double amount, String orderId, String ipAddr) {
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
