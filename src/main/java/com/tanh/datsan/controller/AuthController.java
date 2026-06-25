@@ -3,6 +3,8 @@ package com.tanh.datsan.controller;
 import com.tanh.datsan.dto.RegisterRequest;
 import com.tanh.datsan.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+
     @GetMapping("/")
     public String index() {
         return "redirect:/login";
@@ -117,6 +120,13 @@ public class AuthController {
             session.setAttribute("2fa_passed", Boolean.TRUE);
             session.removeAttribute("2fa_pending");
             session.removeAttribute("2fa_user");
+
+            // Check user role from SecurityContext authorities
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                return "redirect:/admin/dashboard";
+            }
             return "redirect:/dashboard";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
@@ -130,6 +140,17 @@ public class AuthController {
 
     @GetMapping("/dashboard")
     public String dashboard() {
+        // If an admin accidentally lands here, redirect them to admin dashboard
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "redirect:/admin/dashboard";
+        }
         return "dashboard";
+    }
+
+    @GetMapping("/access-denied")
+    public String accessDenied() {
+        return "access-denied";
     }
 }

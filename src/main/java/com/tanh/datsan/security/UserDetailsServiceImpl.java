@@ -24,8 +24,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Account account = accountRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Tài khoản không tồn tại: " + username));
 
+        // Thay vì dùng .toString(), hãy dùng .name() để tránh dính khoảng trắng hoặc lỗi format
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + account.getRole().toString()));
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + account.getRole().name()));
 
         return User.builder()
                 .username(account.getUsername())

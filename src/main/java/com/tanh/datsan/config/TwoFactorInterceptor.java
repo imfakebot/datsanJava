@@ -16,7 +16,7 @@ import java.util.Set;
 public class TwoFactorInterceptor implements HandlerInterceptor {
     // Paths that are allowed without 2FA
     private static final Set<String> EXCLUDED = new HashSet<>(Arrays.asList(
-            "/login", "/login-otp", "/register", "/verify", "/css/", "/js/", "/images/", "/static/"
+            "/login", "/login-otp", "/register", "/verify", "/css/", "/js/", "/images/", "/static/","/logout", "/access-denied", "/error"
     ));
 
     @Override
