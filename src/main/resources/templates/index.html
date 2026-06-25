@@ -41,6 +41,15 @@
             <p class="section-subtitle">Find and book the perfect pitch for your next match.</p>
         </div>
 
+        <!-- Search Form -->
+        <div class="search-container" style="margin-bottom: 30px; text-align: center;">
+            <form action="/" method="get" style="display: inline-flex; width: 100%; max-width: 500px; gap: 10px;">
+                <input type="text" name="search" th:value="${searchKeyword}" placeholder="Tìm theo tên hoặc địa điểm sân..." 
+                       style="flex: 1; padding: 12px 15px; border-radius: 25px; border: 1px solid #e2e8f0; outline: none; font-size: 16px;">
+                <button type="submit" style="padding: 12px 25px; border-radius: 25px; border: none; background: #667eea; color: white; font-weight: 600; cursor: pointer;">Tìm kiếm</button>
+            </form>
+        </div>
+
         <!-- Empty State -->
         <div th:if="${pitches == null or pitches.empty}" class="empty-state">
             <p>No pitches available at the moment.</p>

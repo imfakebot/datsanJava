@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PitchRepository extends JpaRepository<Pitch, Long> {
+    java.util.List<Pitch> findByNameContainingIgnoreCaseOrLocationContainingIgnoreCase(String name, String location);
 }

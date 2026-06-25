@@ -25,14 +25,20 @@ public class AccountController {
     }
 
     @GetMapping("/")
-    public String showHomePage(Model model, java.security.Principal principal) {
+    public String showHomePage(@org.springframework.web.bind.annotation.RequestParam(required = false) String search, Model model, java.security.Principal principal) {
         if (principal != null) {
             Account userAccount = accountRepository.findByUsername(principal.getName()).orElse(null);
             model.addAttribute("account", userAccount != null ? userAccount : new Account());
         } else {
             model.addAttribute("account", new Account());
         }
-        model.addAttribute("pitches", pitchRepository.findAll());
+        
+        if (search != null && !search.trim().isEmpty()) {
+            model.addAttribute("pitches", pitchRepository.findByNameContainingIgnoreCaseOrLocationContainingIgnoreCase(search.trim(), search.trim()));
+            model.addAttribute("searchKeyword", search.trim());
+        } else {
+            model.addAttribute("pitches", pitchRepository.findAll());
+        }
         return "index";
     }
     @org.springframework.web.bind.annotation.PostMapping("/profile/update")

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cấu hình Khung Giờ & Giá - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+<body class="dashboard-page">
+    <nav class="navbar">
+        <a href="/admin/dashboard" class="navbar-brand">
+            <span>⚽</span>
+            <div>Admin Dashboard</div>
+        </a>
+        <div class="navbar-right">
+            <a href="/admin/dashboard" class="logout-btn" style="background: transparent; color: white; border: 1px solid white; margin-right: 10px;">Quay lại</a>
+            <a href="/logout" class="logout-btn">Đăng Xuất</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="welcome-header" style="margin-bottom: 20px;">
+            <div class="welcome-text">
+                <h1>Cấu hình Khung Giờ & Giá: <span th:text="${pitch.name}">Tên sân</span></h1>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+            <!-- Form Thêm Khung Giờ -->
+            <div style="background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; color: white;">
+                <h3 style="margin-bottom: 15px;">Thêm Khung Giờ Mới</h3>
+                <form th:action="@{/admin/pitches/{id}/timeslots/add(id=${pitch.id})}" th:object="${newTimeSlot}" method="post">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Thứ trong tuần *</label>
+                        <select th:field="*{dayOfWeek}" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none; background: rgba(255,255,255,0.9); color: #333;">
+                            <option value="MONDAY">Thứ 2</option>
+                            <option value="TUESDAY">Thứ 3</option>
+                            <option value="WEDNESDAY">Thứ 4</option>
+                            <option value="THURSDAY">Thứ 5</option>
+                            <option value="FRIDAY">Thứ 6</option>
+                            <option value="SATURDAY">Thứ 7</option>
+                            <option value="SUNDAY">Chủ Nhật</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <div style="flex: 1;">
+                            <label style="display: block; margin-bottom: 5px;">Giờ Bắt Đầu *</label>
+                            <input type="time" th:field="*{startTime}" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none; background: rgba(255,255,255,0.9); color: #333;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; margin-bottom: 5px;">Giờ Kết Thúc *</label>
+                            <input type="time" th:field="*{endTime}" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none; background: rgba(255,255,255,0.9); color: #333;">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Giá (VND) *</label>
+                        <input type="number" th:field="*{price}" required min="0" step="1000" style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none; background: rgba(255,255,255,0.9); color: #333;">
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" th:field="*{isGoldenHour}" style="width: 20px; height: 20px;">
+                            <span>Giờ Vàng (Đánh dấu nổi bật)</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" style="width: 100%; padding: 10px 20px; border-radius: 8px; font-weight: bold; background: #667eea; color: white; border: none; cursor: pointer;">Thêm Khung Giờ</button>
+                </form>
+            </div>
+
+            <!-- Danh sách Khung Giờ -->
+            <div style="background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; overflow-x: auto; color: white;">
+                <h3 style="margin-bottom: 15px;">Danh sách Khung Giờ</h3>
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.2);">
+                            <th style="padding: 10px;">Thứ</th>
+                            <th style="padding: 10px;">Thời Gian</th>
+                            <th style="padding: 10px;">Giá</th>
+                            <th style="padding: 10px;">Loại</th>
+                            <th style="padding: 10px; text-align: center;">Xóa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${timeSlots == null or timeSlots.empty}">
+                            <td colspan="5" style="padding: 20px; text-align: center; color: rgba(255,255,255,0.6);">Chưa có cấu hình khung giờ nào.</td>
+                        </tr>
+                        <tr th:each="slot : ${timeSlots}" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 10px; font-weight: bold;" th:text="${slot.dayOfWeek}">MONDAY</td>
+                            <td style="padding: 10px;" th:text="${slot.startTime + ' - ' + slot.endTime}">08:00 - 10:00</td>
+                            <td style="padding: 10px;" th:text="${#numbers.formatDecimal(slot.price, 0, 'COMMA', 0, 'POINT')} + ' VND'">300,000 VND</td>
+                            <td style="padding: 10px;">
+                                <span th:if="${slot.isGoldenHour}" style="background: #fbbf24; color: #78350f; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Giờ Vàng</span>
+                                <span th:if="${!slot.isGoldenHour}" style="background: #9ca3af; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px;">Thường</span>
+                            </td>
+                            <td style="padding: 10px; text-align: center;">
+                                <form th:action="@{/admin/pitches/{pitchId}/timeslots/{slotId}/delete(pitchId=${pitch.id}, slotId=${slot.id})}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa khung giờ này?');">
+                                    <button type="submit" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">X</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

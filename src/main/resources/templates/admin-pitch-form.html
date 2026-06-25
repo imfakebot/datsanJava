@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Sân Bóng - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+<body class="dashboard-page">
+    <nav class="navbar">
+        <a href="/admin/dashboard" class="navbar-brand">
+            <span>⚽</span>
+            <div>Admin Dashboard</div>
+        </a>
+        <div class="navbar-right">
+            <a href="/admin/dashboard" class="logout-btn" style="background: transparent; color: white; border: 1px solid white; margin-right: 10px;">Quay lại</a>
+            <a href="/logout" class="logout-btn">Đăng Xuất</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container" style="max-width: 600px; margin: 0 auto;">
+        <div class="welcome-header" style="margin-bottom: 20px;">
+            <div class="welcome-text">
+                <h1 th:text="${pitch.id == null ? 'Thêm Sân Bóng Mới' : 'Sửa Thông Tin Sân Bóng'}">Quản lý Sân Bóng</h1>
+            </div>
+        </div>
+
+        <div style="background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 25px; color: white;">
+            <form th:action="${pitch.id == null ? '/admin/pitches/create' : '/admin/pitches/' + pitch.id + '/edit'}" th:object="${pitch}" method="post">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Tên Sân Bóng *</label>
+                    <input type="text" th:field="*{name}" required style="width: 100%; padding: 12px; border-radius: 8px; border: none; outline: none; background: rgba(255,255,255,0.9); color: #333; font-size: 16px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Địa Chỉ / Vị Trí *</label>
+                    <input type="text" th:field="*{location}" required style="width: 100%; padding: 12px; border-radius: 8px; border: none; outline: none; background: rgba(255,255,255,0.9); color: #333; font-size: 16px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Loại Sân (VD: Sân 5, Sân 7) *</label>
+                    <input type="text" th:field="*{pitchType}" required style="width: 100%; padding: 12px; border-radius: 8px; border: none; outline: none; background: rgba(255,255,255,0.9); color: #333; font-size: 16px;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">URL Hình Ảnh</label>
+                    <input type="text" th:field="*{imageUrl}" placeholder="https://example.com/image.jpg" style="width: 100%; padding: 12px; border-radius: 8px; border: none; outline: none; background: rgba(255,255,255,0.9); color: #333; font-size: 16px;">
+                </div>
+
+                <div style="margin-bottom: 25px;" th:if="${pitch.id != null}">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Trạng Thái *</label>
+                    <select th:field="*{status}" required style="width: 100%; padding: 12px; border-radius: 8px; border: none; outline: none; background: rgba(255,255,255,0.9); color: #333; font-size: 16px;">
+                        <option value="Available">Available</option>
+                        <option value="Maintenance">Maintenance</option>
+                    </select>
+                </div>
+                
+                <button type="submit" style="width: 100%; padding: 12px 20px; border-radius: 8px; font-weight: bold; background: #667eea; color: white; border: none; cursor: pointer; font-size: 16px; transition: background 0.3s;">
+                    <span th:text="${pitch.id == null ? 'Lưu Sân Bóng' : 'Cập Nhật Thay Đổi'}">Lưu</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

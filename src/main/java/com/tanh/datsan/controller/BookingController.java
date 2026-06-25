@@ -118,4 +118,27 @@ public class BookingController {
 
         return "redirect:" + vnpayUrl;
     }
+
+    @PostMapping("/{id}/cancel")
+    public String cancelBooking(@org.springframework.web.bind.annotation.PathVariable Long id, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+        
+        String username = ((UserDetails) authentication.getPrincipal()).getUsername();
+        Account account = accountRepository.findByUsername(username).orElse(null);
+        if (account == null) {
+            return "redirect:/login";
+        }
+        
+        Booking booking = bookingRepository.findById(id).orElse(null);
+        if (booking != null && booking.getAccount().getId().equals(account.getId())) {
+            if (booking.getStatus() == BookingStatus.PENDING_PAYMENT) {
+                booking.setStatus(BookingStatus.CANCELLED);
+                bookingRepository.save(booking);
+            }
+        }
+        
+        return "redirect:/dashboard";
+    }
 }

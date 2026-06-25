@@ -10,4 +10,5 @@ import java.util.List;
 public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
     List<TimeSlot> findByPitchId(Long pitchId);
     List<TimeSlot> findByPitchIdAndDayOfWeek(Long pitchId, DayOfWeek dayOfWeek);
+    List<TimeSlot> findByPitchIdOrderByDayOfWeekAscStartTimeAsc(Long pitchId);
 }

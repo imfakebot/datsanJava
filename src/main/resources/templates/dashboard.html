@@ -68,11 +68,12 @@
                         <th style="padding: 15px 10px;">Thời Gian</th>
                         <th style="padding: 15px 10px;">Trạng Thái</th>
                         <th style="padding: 15px 10px;">Tổng Tiền</th>
+                        <th style="padding: 15px 10px;">Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:if="${bookings == null or bookings.empty}">
-                        <td colspan="6" style="padding: 20px; text-align: center; color: rgba(255,255,255,0.6);">Bạn chưa có lịch đặt sân nào.</td>
+                        <td colspan="8" style="padding: 20px; text-align: center; color: rgba(255,255,255,0.6);">Bạn chưa có lịch đặt sân nào.</td>
                     </tr>
                     <tr th:each="b : ${bookings}" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
                         <td style="padding: 15px 10px; font-weight: bold; color: #a5b4fc;" th:text="${b.bookingCode}">CODE</td>
@@ -86,6 +87,11 @@
                                   th:text="${b.status}">Status</span>
                         </td>
                         <td style="padding: 15px 10px;" th:text="${#numbers.formatDecimal(b.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'">Amount</td>
+                        <td style="padding: 15px 10px;">
+                            <form th:if="${b.status.name() == 'PENDING_PAYMENT'}" th:action="@{/booking/{id}/cancel(id=${b.id})}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn này?');">
+                                <button type="submit" style="padding: 5px 10px; border-radius: 5px; border: none; background: #ef4444; color: white; cursor: pointer;">Hủy</button>
+                            </form>
+                        </td>
                     </tr>
                 </tbody>
             </table>

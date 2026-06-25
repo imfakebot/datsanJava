@@ -43,7 +43,14 @@ public class AdminController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         model.addAttribute("pitches", pitchRepository.findAll());
-        model.addAttribute("bookings", bookingRepository.findAll());
+        java.util.List<Booking> bookings = bookingRepository.findAll();
+        model.addAttribute("bookings", bookings);
+        
+        double totalRevenue = bookings.stream()
+                .filter(b -> b.getStatus() == com.tanh.datsan.constant.BookingStatus.CONFIRMED || b.getStatus() == com.tanh.datsan.constant.BookingStatus.CHECKED_IN)
+                .mapToDouble(Booking::getTotalAmount)
+                .sum();
+        model.addAttribute("totalRevenue", totalRevenue);
         return "admin-dashboard";
     }
 
@@ -105,5 +112,70 @@ public class AdminController {
         return "redirect:/admin/dashboard?offline_booked";
     }
 
+    @GetMapping("/pitches/create")
+    public String showCreatePitchForm(Model model) {
+        model.addAttribute("pitch", new Pitch());
+        return "admin-pitch-form";
+    }
 
+    @PostMapping("/pitches/create")
+    public String createPitch(@ModelAttribute Pitch pitch) {
+        pitch.setStatus("Available");
+        pitchRepository.save(pitch);
+        return "redirect:/admin/dashboard";
+    }
+
+    @GetMapping("/pitches/{id}/edit")
+    public String showEditPitchForm(@PathVariable Long id, Model model) {
+        Pitch pitch = pitchRepository.findById(id).orElse(null);
+        if (pitch == null) return "redirect:/admin/dashboard";
+        model.addAttribute("pitch", pitch);
+        return "admin-pitch-form";
+    }
+
+    @PostMapping("/pitches/{id}/edit")
+    public String editPitch(@PathVariable Long id, @ModelAttribute Pitch pitchDetails) {
+        Pitch pitch = pitchRepository.findById(id).orElse(null);
+        if (pitch != null) {
+            pitch.setName(pitchDetails.getName());
+            pitch.setLocation(pitchDetails.getLocation());
+            pitch.setPitchType(pitchDetails.getPitchType());
+            pitch.setImageUrl(pitchDetails.getImageUrl());
+            pitch.setStatus(pitchDetails.getStatus());
+            pitchRepository.save(pitch);
+        }
+        return "redirect:/admin/dashboard";
+    }
+
+    @PostMapping("/pitches/{id}/delete")
+    public String deletePitch(@PathVariable Long id) {
+        pitchRepository.deleteById(id);
+        return "redirect:/admin/dashboard";
+    }
+
+    @GetMapping("/pitches/{id}/timeslots")
+    public String manageTimeSlots(@PathVariable Long id, Model model) {
+        Pitch pitch = pitchRepository.findById(id).orElse(null);
+        if (pitch == null) return "redirect:/admin/dashboard";
+        model.addAttribute("pitch", pitch);
+        model.addAttribute("timeSlots", timeSlotRepository.findByPitchIdOrderByDayOfWeekAscStartTimeAsc(id));
+        model.addAttribute("newTimeSlot", new com.tanh.datsan.entity.TimeSlot());
+        return "admin-timeslots";
+    }
+
+    @PostMapping("/pitches/{id}/timeslots/add")
+    public String addTimeSlot(@PathVariable Long id, @ModelAttribute com.tanh.datsan.entity.TimeSlot timeSlot) {
+        Pitch pitch = pitchRepository.findById(id).orElse(null);
+        if (pitch != null) {
+            timeSlot.setPitch(pitch);
+            timeSlotRepository.save(timeSlot);
+        }
+        return "redirect:/admin/pitches/" + id + "/timeslots";
+    }
+
+    @PostMapping("/pitches/{pitchId}/timeslots/{slotId}/delete")
+    public String deleteTimeSlot(@PathVariable Long pitchId, @PathVariable Long slotId) {
+        timeSlotRepository.deleteById(slotId);
+        return "redirect:/admin/pitches/" + pitchId + "/timeslots";
+    }
 }

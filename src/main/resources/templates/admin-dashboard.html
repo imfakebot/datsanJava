@@ -37,7 +37,43 @@
         <div class="admin-content">
             <h1 style="margin-bottom: 20px;">Dashboard</h1>
             
+            <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h3>Tổng Doanh Thu</h3>
+                <p style="font-size: 24px; font-weight: bold; margin-top: 10px;" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></p>
+            </div>
 
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>Quản lý Sân Bóng</h3>
+                    <a href="/admin/pitches/create" class="btn-primary">Thêm Sân Bóng</a>
+                </div>
+                <table style="margin-top: 15px;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên sân</th>
+                            <th>Loại</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${pitches}">
+                            <td th:text="${p.id}"></td>
+                            <td th:text="${p.name}"></td>
+                            <td th:text="${p.pitchType}"></td>
+                            <td th:text="${p.status}"></td>
+                            <td>
+                                <a th:href="@{/admin/pitches/{id}/edit(id=${p.id})}" style="color: #4f46e5; text-decoration: none; margin-right: 10px;">Sửa</a>
+                                <a th:href="@{/admin/pitches/{id}/timeslots(id=${p.id})}" style="color: #10b981; text-decoration: none; margin-right: 10px;">Giờ/Giá</a>
+                                <form th:action="@{/admin/pitches/{id}/delete(id=${p.id})}" method="post" style="display:inline;" onsubmit="return confirm('Xác nhận xóa sân bóng này?');">
+                                    <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; text-decoration: underline;">Xóa</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <div class="card">
                 <h3>Create Offline Booking</h3>
