@@ -3,6 +3,7 @@ package com.tanh.datsan.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +33,7 @@ public class BookingService {
         return bookingRepository.findByAccountIdOrderByCreatedAtDesc(accountId);
     }
 
-    public java.util.Optional<Booking> findById(Long id) {
+    public Optional<Booking> findById(Long id) {
         return bookingRepository.findById(id);
     }
 
@@ -134,7 +135,7 @@ public class BookingService {
     }
 
     private String generateBookingCode() {
-        String datePart = LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String randomPart = UUID.randomUUID().toString().substring(0, 4).toUpperCase();
         return datePart + "-" + randomPart;
     }
