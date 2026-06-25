@@ -45,6 +45,9 @@ public class Account {
     @Column(name = "login_otp_expiry")
     private java.time.LocalDateTime loginOtpExpiry;
 
+    @Column(name = "is_locked", nullable = false)
+    private boolean isLocked = false;
+
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<Booking> bookings;
 }

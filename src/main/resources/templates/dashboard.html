@@ -22,6 +22,12 @@
     </nav>
 
     <div class="dashboard-container">
+        <div th:if="${successMessage}" style="background-color: #d1fae5; color: #065f46; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong th:text="${successMessage}">Thành công!</strong>
+        </div>
+        <div th:if="${errorMessage}" style="background-color: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong th:text="${errorMessage}">Lỗi!</strong>
+        </div>
         <div class="welcome-section">
             <div class="welcome-header">
                 <div class="welcome-icon">⚽</div>
@@ -39,7 +45,7 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">📅</div>
-                    <div class="stat-value">0</div>
+                    <div class="stat-value" th:text="${totalBookings}">0</div>
                     <div class="stat-label">Lượt Đặt Của Bạn</div>
                 </div>
                 <div class="stat-card">
@@ -50,61 +56,85 @@
             </div>
         </div>
 
-        <h2 style="color: white; margin-bottom: 20px;">🚀 Tính Năng Chính</h2>
-        <div class="features-section">
-            <div class="feature-card">
-                <div class="feature-icon">📍</div>
-                <div class="feature-title">Tìm Kiếm Sân <span class="badge">HOẠT ĐỘNG</span></div>
-                <div class="feature-description">
-                    Tìm kiếm các sân bóng gần bạn với thông tin chi tiết về loại sân, giá cả và đánh giá từ người dùng khác.
-                </div>
-                <button class="feature-btn" onclick="alert('Tính năng này sẽ được cập nhật!')">Khám Phá Sân</button>
+        <h2 style="color: white; margin-bottom: 20px;">📅 Lịch Sử Đặt Sân</h2>
+        <div class="table-container" style="background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; color: white; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.2);">
+                        <th style="padding: 15px 10px;">Mã Đặt Sân</th>
+                        <th style="padding: 15px 10px;">Sân Bóng</th>
+                        <th style="padding: 15px 10px;">Ngày Tạo Đơn</th>
+                        <th style="padding: 15px 10px;">Ngày Đá</th>
+                        <th style="padding: 15px 10px;">Thời Gian</th>
+                        <th style="padding: 15px 10px;">Trạng Thái</th>
+                        <th style="padding: 15px 10px;">Tổng Tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${bookings == null or bookings.empty}">
+                        <td colspan="6" style="padding: 20px; text-align: center; color: rgba(255,255,255,0.6);">Bạn chưa có lịch đặt sân nào.</td>
+                    </tr>
+                    <tr th:each="b : ${bookings}" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                        <td style="padding: 15px 10px; font-weight: bold; color: #a5b4fc;" th:text="${b.bookingCode}">CODE</td>
+                        <td style="padding: 15px 10px;" th:text="${b.pitch.name}">Pitch Name</td>
+                        <td style="padding: 15px 10px;" th:text="${#temporals.format(b.createdAt, 'dd/MM/yyyy HH:mm')}">Created At</td>
+                        <td style="padding: 15px 10px;" th:text="${#temporals.format(b.bookingDate, 'dd/MM/yyyy')}">Date</td>
+                        <td style="padding: 15px 10px;" th:text="${#temporals.format(b.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(b.endTime, 'HH:mm')}">Time</td>
+                        <td style="padding: 15px 10px;">
+                            <span style="padding: 5px 10px; border-radius: 20px; font-size: 0.85em; font-weight: bold;"
+                                  th:classappend="${b.status.name() == 'PAID' or b.status.name() == 'CONFIRMED' ? 'badge-paid' : (b.status.name() == 'PENDING_PAYMENT' ? 'badge-pending' : 'badge-cancelled')}"
+                                  th:text="${b.status}">Status</span>
+                        </td>
+                        <td style="padding: 15px 10px;" th:text="${#numbers.formatDecimal(b.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'">Amount</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 40px;">
+            <!-- Profile Update Form -->
+            <div style="background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; color: white;">
+                <h3 style="margin-bottom: 15px;">Cập nhật Thông tin</h3>
+                <form action="/profile/update" method="post">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Họ và Tên</label>
+                        <input type="text" name="fullName" th:value="${account.fullName}" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Số điện thoại</label>
+                        <input type="text" name="phone" th:value="${account.phone}" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Email (Không thể thay đổi)</label>
+                        <input type="email" name="email" th:value="${account.email}" readonly style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none; background: rgba(255,255,255,0.5); cursor: not-allowed; color: #333;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 20px; border-radius: 8px; font-weight: bold; background: #667eea; color: white; border: none; cursor: pointer;">Lưu Thông Tin</button>
+                </form>
             </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">📅</div>
-                <div class="feature-title">Quản Lý Đặt Sân <span class="badge">HOẠT ĐỘNG</span></div>
-                <div class="feature-description">
-                    Xem, quản lý và hủy các đặt sân của bạn. Nhận thông báo nhắc nhở trước giờ đặt.
-                </div>
-                <button class="feature-btn" onclick="alert('Tính năng này sẽ được cập nhật!')">Xem Đặt Sân</button>
+            <!-- Change Password Form -->
+            <div style="background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; color: white;">
+                <h3 style="margin-bottom: 15px;">Đổi Mật Khẩu</h3>
+                <form action="/profile/password" method="post">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Mật khẩu cũ</label>
+                        <input type="password" name="oldPassword" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Mật khẩu mới</label>
+                        <input type="password" name="newPassword" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Xác nhận mật khẩu mới</label>
+                        <input type="password" name="confirmPassword" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 20px; border-radius: 8px; font-weight: bold; background: #ed8936; color: white; border: none; cursor: pointer;">Đổi Mật Khẩu</button>
+                </form>
             </div>
+        </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">💳</div>
-                <div class="feature-title">Thanh Toán An Toàn <span class="badge">HOẠT ĐỘNG</span></div>
-                <div class="feature-description">
-                    Hỗ trợ nhiều phương thức thanh toán với bảo mật hàng đầu. Thanh toán trực tuyến hoặc tại sân.
-                </div>
-                <button class="feature-btn" onclick="alert('Tính năng này sẽ được cập nhật!')">Chi Tiết Thanh Toán</button>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">⭐</div>
-                <div class="feature-title">Đánh Giá & Bình Luận</div>
-                <div class="feature-description">
-                    Chia sẻ trải nghiệm của bạn và giúp cộng đồng tìm thấy những sân tốt nhất.
-                </div>
-                <button class="feature-btn coming-soon" disabled>Sắp Có Mặt</button>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">👥</div>
-                <div class="feature-title">Chia Sẻ Sân Với Bạn Bè</div>
-                <div class="feature-description">
-                    Tạo nhóm chơi, mời bạn bè và cùng nhau tổ chức các trận đấu vui vẻ.
-                </div>
-                <button class="feature-btn coming-soon" disabled>Sắp Có Mặt</button>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">🏆</div>
-                <div class="feature-title">Thống Kê & Thành Tích</div>
-                <div class="feature-description">
-                    Theo dõi lịch sử đặt sân, thống kê sử dụng và các thành tích của bạn.
-                </div>
-                <button class="feature-btn coming-soon" disabled>Sắp Có Mặt</button>
-            </div>
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="/" class="btn btn-primary" style="padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: bold; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: inline-block;">Khám Phá Thêm Sân</a>
         </div>
     </div>
 

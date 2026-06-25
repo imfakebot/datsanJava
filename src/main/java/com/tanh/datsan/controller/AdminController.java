@@ -47,59 +47,23 @@ public class AdminController {
         return "admin-dashboard";
     }
 
-    @PostMapping("/pitch/add")
-    public String addPitch(
-            @RequestParam("name") String name,
-            @RequestParam("location") String location,
-            @RequestParam("pitchType") String pitchType,
-            @RequestParam("file") MultipartFile file) {
-        
-        Pitch pitch = new Pitch();
-        pitch.setName(name);
-        pitch.setLocation(location);
-        pitch.setPitchType(pitchType);
-        pitch.setStatus("Available");
-        // Coordinates can be set to default or parsed
-        pitch.setLatitude(0.0);
-        pitch.setLongitude(0.0);
+    @GetMapping("/customers")
+    public String customers(Model model) {
+        model.addAttribute("accounts", accountRepository.findAll());
+        return "admin-customers";
+    }
 
-        if (!file.isEmpty()) {
-            String fileName = fileStorageService.storeFile(file);
-            pitch.setImageUrl("/uploads/" + fileName);
+    @PostMapping("/customer/{id}/toggle-lock")
+    public String toggleCustomerLock(@PathVariable Long id) {
+        com.tanh.datsan.entity.Account account = accountRepository.findById(id).orElse(null);
+        if (account != null && account.getRole() != com.tanh.datsan.constant.Role.ADMIN) {
+            account.setLocked(!account.isLocked());
+            accountRepository.save(account);
         }
-
-        pitchRepository.save(pitch);
-        return "redirect:/admin/dashboard?added";
+        return "redirect:/admin/customers";
     }
 
-    @GetMapping("/pitch/{id}")
-    public String viewPitchAdmin(@PathVariable Long id, Model model) {
-        Pitch pitch = pitchRepository.findById(id).orElse(null);
-        if (pitch == null) return "redirect:/admin/dashboard";
 
-        List<Booking> activeBookings = bookingRepository.findAll().stream()
-                .filter(b -> b.getPitch().getId().equals(id)
-                        && b.getStatus() == com.tanh.datsan.constant.BookingStatus.CONFIRMED
-                        && b.getStartTime().isBefore(LocalDateTime.now())
-                        && b.getEndTime().isAfter(LocalDateTime.now()))
-                .toList();
-
-        boolean isCurrentlyPlayed = !activeBookings.isEmpty();
-        
-        List<Booking> pitchBookings = bookingRepository.findAll().stream()
-                .filter(b -> b.getPitch().getId().equals(id))
-                .toList();
-                
-        List<com.tanh.datsan.entity.TimeSlot> timeSlots = timeSlotRepository.findByPitchId(id);
-
-        model.addAttribute("pitch", pitch);
-        model.addAttribute("isCurrentlyPlayed", isCurrentlyPlayed);
-        model.addAttribute("activeBooking", isCurrentlyPlayed ? activeBookings.get(0) : null);
-        model.addAttribute("pitchBookings", pitchBookings);
-        model.addAttribute("timeSlots", timeSlots);
-
-        return "admin-pitch-detail";
-    }
 
     @PostMapping("/booking/{id}/checkin")
     public String checkInBooking(@PathVariable Long id) {
@@ -141,31 +105,5 @@ public class AdminController {
         return "redirect:/admin/dashboard?offline_booked";
     }
 
-    @PostMapping("/pitch/{id}/timeslot/add")
-    public String addTimeSlot(
-            @PathVariable Long id,
-            @RequestParam("startTime") LocalTime startTime,
-            @RequestParam("endTime") LocalTime endTime,
-            @RequestParam("dayOfWeek") String dayOfWeekStr,
-            @RequestParam("price") Double price,
-            @RequestParam(value = "isGoldenHour", defaultValue = "false") boolean isGoldenHour) {
-        
-        Pitch pitch = pitchRepository.findById(id).orElseThrow();
-        com.tanh.datsan.entity.TimeSlot slot = new com.tanh.datsan.entity.TimeSlot();
-        slot.setPitch(pitch);
-        slot.setStartTime(startTime);
-        slot.setEndTime(endTime);
-        slot.setDayOfWeek(DayOfWeek.valueOf(dayOfWeekStr));
-        slot.setPrice(price);
-        slot.setGoldenHour(isGoldenHour);
-        
-        timeSlotRepository.save(slot);
-        return "redirect:/admin/pitch/" + id + "?added_slot";
-    }
 
-    @PostMapping("/pitch/{pitchId}/timeslot/{slotId}/delete")
-    public String deleteTimeSlot(@PathVariable Long pitchId, @PathVariable Long slotId) {
-        timeSlotRepository.deleteById(slotId);
-        return "redirect:/admin/pitch/" + pitchId + "?deleted_slot";
-    }
 }

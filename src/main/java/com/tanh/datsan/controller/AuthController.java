@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final com.tanh.datsan.repository.BookingRepository bookingRepository;
+    private final com.tanh.datsan.repository.AccountRepository accountRepository;
 
 
     @GetMapping("/login")
@@ -114,7 +116,7 @@ public class AuthController {
             session.setAttribute("2fa_passed", Boolean.TRUE);
             session.removeAttribute("2fa_pending");
             session.removeAttribute("2fa_user");
-            return "redirect:/dashboard";
+            return "redirect:/";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("title", "Xác thực Đăng nhập");
@@ -126,7 +128,20 @@ public class AuthController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard() {
+    public String dashboard(Model model, java.security.Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+        com.tanh.datsan.entity.Account account = accountRepository.findByUsername(principal.getName()).orElse(null);
+        if (account == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("account", account);
+        
+        java.util.List<com.tanh.datsan.entity.Booking> bookings = bookingRepository.findByAccountIdOrderByCreatedAtDesc(account.getId());
+        model.addAttribute("bookings", bookings);
+        model.addAttribute("totalBookings", bookings.size());
+        
         return "dashboard";
     }
 }

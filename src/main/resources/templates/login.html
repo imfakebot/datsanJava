@@ -38,7 +38,7 @@
             <p>Đăng nhập hệ thống quản lý chuyên nghiệp</p>
         </div>
 
-        <form id="loginForm">
+        <form id="loginForm" method="POST" action="/login">
             <div class="form-group">
                 <label for="username">Tên đăng nhập</label>
                 <input type="text" id="username" name="username" required placeholder="Nhập tên đăng nhập">
@@ -62,35 +62,6 @@
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const loginForm = document.getElementById('loginForm');
-        
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            const formData = new URLSearchParams(new FormData(this));
-
-            fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData
-            })
-            .then(response => {
-                if (response.url.includes('error')) {
-                    showToast('error', 'Đăng Nhập Thất Bại', 'Tài khoản hoặc mật khẩu không chính xác!');
-                } else if (response.url.includes('otp-verify') || response.url.includes('otp')) {
-                    showToast('success', 'Kiểm Tra Hộp Thư', 'Mã xác thực đã được gửi. Đang chuyển hướng...');
-                    setTimeout(() => { window.location.href = response.url; }, 1500);
-                } else if (response.url.includes('dashboard') || response.ok) {
-                    showToast('success', 'Đăng Nhập Thành Công', 'Đang đưa bạn đến sân bóng...');
-                    setTimeout(() => { window.location.href = '/dashboard'; }, 1500);
-                }
-            })
-            .catch(error => {
-                showToast('error', 'Lỗi Máy Chủ', 'Không thể kết nối đến server.');
-            });
-        });
-    });
-
     function showToast(type, title, message) {
         const toastContainer = document.getElementById('toastBox');
         const toast = document.createElement('div');

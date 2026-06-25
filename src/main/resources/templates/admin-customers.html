@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Khách hàng - Admin Datsan</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-sidebar { width: 250px; background: #111827; color: white; padding: 20px; }
+        .admin-sidebar a { color: #d1d5db; text-decoration: none; display: block; padding: 10px 0; }
+        .admin-sidebar a:hover { color: white; }
+        .admin-content { flex: 1; padding: 30px; background: #f9fafb; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        th { font-weight: 600; color: #374151; }
+        .btn-primary { background: #4f46e5; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-danger { background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-success { background: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; }
+        .btn-success:hover { background: #059669; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.85em; font-weight: bold; }
+        .badge-active { background: #d1fae5; color: #065f46; }
+        .badge-locked { background: #fee2e2; color: #991b1b; }
+        .badge-admin { background: #e0e7ff; color: #3730a3; }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <div class="admin-sidebar">
+            <h2 style="margin-bottom: 30px;">Datsan Admin</h2>
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/customers" style="color: white; font-weight: 600;">Quản lý Người dùng</a>
+            <a href="/">Go to User Site</a>
+        </div>
+        <div class="admin-content">
+            <h1 style="margin-bottom: 20px;">Quản lý Khách hàng</h1>
+            
+            <div class="card">
+                <h3>Danh sách Tài khoản</h3>
+                <table style="margin-top: 15px;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Họ và Tên</th>
+                            <th>Email</th>
+                            <th>SĐT</th>
+                            <th>Vai trò</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="acc : ${accounts}">
+                            <td th:text="${acc.id}"></td>
+                            <td th:text="${acc.username}"></td>
+                            <td th:text="${acc.fullName}"></td>
+                            <td th:text="${acc.email}"></td>
+                            <td th:text="${acc.phone}"></td>
+                            <td>
+                                <span class="badge badge-admin" th:if="${acc.role.name() == 'ADMIN'}">ADMIN</span>
+                                <span class="badge" style="background:#f3f4f6; color:#374151" th:if="${acc.role.name() == 'USER'}">USER</span>
+                            </td>
+                            <td>
+                                <span class="badge badge-locked" th:if="${acc.isLocked}">Đã Khóa</span>
+                                <span class="badge badge-active" th:unless="${acc.isLocked}">Hoạt Động</span>
+                            </td>
+                            <td>
+                                <form th:if="${acc.role.name() != 'ADMIN'}" th:action="@{/admin/customer/{id}/toggle-lock(id=${acc.id})}" method="post" style="display:inline;">
+                                    <button type="submit" th:class="${acc.isLocked ? 'btn-success' : 'btn-danger'}" th:text="${acc.isLocked ? 'Mở Khóa' : 'Khóa'}">Thao tác</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

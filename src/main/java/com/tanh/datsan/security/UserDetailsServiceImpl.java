@@ -32,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .password(account.getPassword())
                 .authorities(authorities)
                 .accountExpired(false)
-                .accountLocked(false)
+                .accountLocked(account.isLocked())
                 .credentialsExpired(false)
                 // disable login until account is verified by email
                 .disabled(!account.isVerified())

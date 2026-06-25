@@ -14,14 +14,17 @@ rectangle "Hệ Thống Đặt Sân Bóng" {
   usecase "Tìm kiếm & xem lịch sân" as UC1
   usecase "Đặt sân Online" as UC2
   usecase "Hủy đơn" as UC3
-  usecase "Xem lịch sử đặt sân" as UC12
+  usecase "Dashboard người dùng (Lịch sử)" as UC12
+  usecase "Cập nhật thông tin & Mật khẩu" as UC13
   
   usecase "Tạo đơn Offline" as UC4
   usecase "Check-in khách" as UC5
+  usecase "Quản lý Đơn đặt sân" as UC14
   
   usecase "Quản lý Sân bóng" as UC6
   usecase "Xem doanh thu" as UC7
   usecase "Cấu hình giá & giờ vàng" as UC11
+  usecase "Quản lý Khách hàng" as UC15
   
   usecase "Tự động hủy đơn (10p)" as UC8
   usecase "Tự động nhả sân (No-show)" as UC9
@@ -35,15 +38,19 @@ User --> UC1
 User --> UC2
 User --> UC3
 User --> UC12
+User --> UC13
 
 Staff --> Login
 Staff --> UC4
 Staff --> UC5
+Staff --> UC14
 
 Admin --> Login
 Admin --> UC6
 Admin --> UC7
 Admin --> UC11
+Admin --> UC14
+Admin --> UC15
 
 System --> UC8
 System --> UC9
