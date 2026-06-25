@@ -1,0 +1,21 @@
+package com.tanh.datsan.config;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+@RequiredArgsConstructor
+public class WebMvcConfig implements WebMvcConfigurer {
+    private final TwoFactorInterceptor twoFactorInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(twoFactorInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/", "/login", "/login-otp", "/register",
+                "/verify", "/logout", "/access-denied", "/error",
+                "/css/**", "/js/**", "/images/**", "/static/**", "/api/**");
+    }
+}

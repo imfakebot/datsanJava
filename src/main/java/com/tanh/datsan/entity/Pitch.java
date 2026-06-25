@@ -22,8 +22,11 @@ public class Pitch {
     private Double latitude;
     private Double longitude;
     
+    @Column(nullable = false)
     private String pitchType;
-    private String status;
+    
+    @Column(nullable = false)
+    private String status = "ACTIVE";
 
     @OneToMany(mappedBy = "pitch", cascade = CascadeType.ALL)
     private List<TimeSlot> timeSlots;
