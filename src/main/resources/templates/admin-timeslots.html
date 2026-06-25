@@ -96,9 +96,12 @@
                                 <span th:if="${slot.goldenHour}" style="background: #fbbf24; color: #78350f; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Giờ Vàng</span>
                                 <span th:if="${!slot.goldenHour}" style="background: #9ca3af; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px;">Thường</span>
                             </td>
-                            <td style="padding: 10px; text-align: center;">
+                            <td style="padding: 10px; text-align: center; display: flex; gap: 5px; justify-content: center;">
+                                <form th:action="@{/admin/pitches/{pitchId}/timeslots/{slotId}/toggle-golden(pitchId=${pitch.id}, slotId=${slot.id})}" method="post">
+                                    <button type="submit" style="background: #f59e0b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;" title="Đổi trạng thái Giờ Vàng">⭐</button>
+                                </form>
                                 <form th:action="@{/admin/pitches/{pitchId}/timeslots/{slotId}/delete(pitchId=${pitch.id}, slotId=${slot.id})}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa khung giờ này?');">
-                                    <button type="submit" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">X</button>
+                                    <button type="submit" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;" title="Xóa">X</button>
                                 </form>
                             </td>
                         </tr>

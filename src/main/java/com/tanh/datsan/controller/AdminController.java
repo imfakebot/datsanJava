@@ -43,6 +43,9 @@ public class AdminController {
     @Autowired
     private TimeSlotService timeSlotService;
 
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         model.addAttribute("pitches", pitchService.findAll());
@@ -71,6 +74,33 @@ public class AdminController {
             accountService.save(account);
         }
         return "redirect:/admin/customers";
+    }
+
+    @GetMapping("/staffs")
+    public String staffs(Model model) {
+        model.addAttribute("staffs", accountService.findAll().stream()
+                .filter(a -> a.getRole() == Role.STAFF)
+                .toList());
+        model.addAttribute("newStaff", new Account());
+        return "admin-staffs";
+    }
+
+    @PostMapping("/staffs/create")
+    public String createStaff(@ModelAttribute Account staff, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        if (accountService.existsByUsername(staff.getUsername())) {
+            redirectAttributes.addFlashAttribute("error", "Tên đăng nhập đã tồn tại!");
+            return "redirect:/admin/staffs";
+        }
+        if (accountService.existsByEmail(staff.getEmail())) {
+            redirectAttributes.addFlashAttribute("error", "Email đã tồn tại!");
+            return "redirect:/admin/staffs";
+        }
+        staff.setPassword(passwordEncoder.encode(staff.getPassword()));
+        staff.setRole(Role.STAFF);
+        staff.setVerified(true);
+        accountService.save(staff);
+        redirectAttributes.addFlashAttribute("success", "Tạo tài khoản nhân viên thành công!");
+        return "redirect:/admin/staffs";
     }
 
 
@@ -230,6 +260,16 @@ public class AdminController {
     @PostMapping("/pitches/{pitchId}/timeslots/{slotId}/delete")
     public String deleteTimeSlot(@PathVariable Long pitchId, @PathVariable Long slotId) {
         timeSlotService.deleteById(slotId);
+        return "redirect:/admin/pitches/" + pitchId + "/timeslots";
+    }
+
+    @PostMapping("/pitches/{pitchId}/timeslots/{slotId}/toggle-golden")
+    public String toggleGoldenHour(@PathVariable Long pitchId, @PathVariable Long slotId) {
+        TimeSlot slot = timeSlotService.findById(slotId);
+        if (slot != null) {
+            slot.setGoldenHour(!slot.isGoldenHour());
+            timeSlotService.save(slot);
+        }
         return "redirect:/admin/pitches/" + pitchId + "/timeslots";
     }
 }

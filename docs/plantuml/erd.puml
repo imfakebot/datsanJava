@@ -1,0 +1,89 @@
+@startuml datsan
+hide circle
+skinparam linetype ortho
+
+entity "Account" as account {
+  *id : Long <<generated>>
+  --
+  *username : String <<unique>>
+  *password : String
+  fullName : String
+  phone : String
+  email : String
+  role : Role
+  *is_verified : boolean
+  verification_code : String
+  verification_code_expiry : LocalDateTime
+  login_otp : String
+  login_otp_expiry : LocalDateTime
+  *is_locked : boolean
+}
+
+entity "Pitch" as pitch {
+  *id : Long <<generated>>
+  --
+  *name : String
+  location : String
+  latitude : Double
+  longitude : Double
+  pitchType : String
+  status : String
+  description : Text
+  amenities : Text
+}
+
+entity "PitchImage" as pitch_image {
+  *id : Long <<generated>>
+  --
+  *pitch_id : Long <<FK>>
+  *imageUrl : Text
+  display_order : Integer
+}
+
+entity "TimeSlot" as time_slot {
+  *id : Long <<generated>>
+  --
+  *pitch_id : Long <<FK>>
+  *startTime : LocalTime
+  *endTime : LocalTime
+  *is_golden_hour : boolean
+  *price : Double
+  dayOfWeek : DayOfWeek
+}
+
+entity "Booking" as booking {
+  *id : Long <<generated>>
+  --
+  *bookingCode : String <<unique>>
+  *account_id : Long <<FK>>
+  *pitch_id : Long <<FK>>
+  *bookingDate : LocalDate
+  *startTime : LocalDateTime
+  *endTime : LocalDateTime
+  *durationMinutes : Integer
+  *totalAmount : Double
+  *status : BookingStatus
+  *createdAt : LocalDateTime
+}
+
+entity "Payment" as payment {
+  *id : Long <<generated>>
+  --
+  *booking_id : Long <<FK, unique>>
+  *amount : Double
+  *method : PaymentMethod
+  *status : PaymentStatus
+  transactionNo : String
+  bankCode : String
+  orderInfo : String
+  vnpResponseCode : String
+  paymentTime : LocalDateTime
+}
+
+account ||--o{ booking : "1:N"
+pitch ||--o{ pitch_image : "1:N"
+pitch ||--o{ time_slot : "1:N"
+pitch ||--o{ booking : "1:N"
+booking ||--|| payment : "1:1"
+
+@enduml
