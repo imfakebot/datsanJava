@@ -78,36 +78,10 @@ public class BookingController {
             return "redirect:/pitch/" + pitchId + "?error=maintenance";
         }
 
-        LocalDate bookingDate = LocalDate.parse(bookingDateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        LocalTime time = LocalTime.parse(startTimeStr, DateTimeFormatter.ofPattern("HH:mm"));
-        LocalDateTime startTime = LocalDateTime.of(bookingDate, time);
-        LocalDateTime endTime = startTime.plusMinutes((long) (duration * 60));
-
-        // Calculate price dynamically based on TimeSlot configuration, minute by minute
-        double totalAmount = timeSlotService.calculatePrice(pitchId, startTime, (int) (duration * 60));
-
-        Booking booking = new Booking();
-        booking.setBookingCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-        booking.setAccount(account);
-        booking.setPitch(pitch);
-        booking.setBookingDate(bookingDate);
-        booking.setStartTime(startTime);
-        booking.setEndTime(endTime);
-        booking.setDurationMinutes((int) (duration * 60));
-        booking.setTotalAmount(totalAmount);
-        booking.setStatus(BookingStatus.PENDING_PAYMENT);
-
-        booking = bookingService.save(booking);
-
-        Payment payment = new Payment();
-        payment.setBooking(booking);
-        payment.setAmount(totalAmount);
-        payment.setMethod(PaymentMethod.VNPAY);
-        payment.setStatus(com.tanh.datsan.constant.PaymentStatus.PENDING);
-        paymentService.save(payment);
-
+        Booking booking = bookingService.processOnlineBooking(account, pitch, bookingDateStr, startTimeStr, duration);
+        
         String ipAddr = request.getRemoteAddr();
-        String vnpayUrl = paymentService.createVnPayUrl(totalAmount, booking.getId().toString(), ipAddr);
+        String vnpayUrl = paymentService.createPaymentAndGetVnPayUrl(booking, ipAddr);
 
         return "redirect:" + vnpayUrl;
     }

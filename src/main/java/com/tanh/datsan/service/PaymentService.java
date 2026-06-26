@@ -1,6 +1,11 @@
 package com.tanh.datsan.service;
 
 import com.tanh.datsan.config.VNPayConfig;
+import com.tanh.datsan.constant.PaymentMethod;
+import com.tanh.datsan.entity.Booking;
+import com.tanh.datsan.entity.Payment;
+import com.tanh.datsan.repository.PaymentRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +23,23 @@ public class PaymentService {
     private VNPayConfig vnPayConfig;
 
     @Autowired
-    private com.tanh.datsan.repository.PaymentRepository paymentRepository;
+    private PaymentRepository paymentRepository;
 
-    public com.tanh.datsan.entity.Payment save(com.tanh.datsan.entity.Payment payment) {
+    public Payment save(Payment payment) {
         return paymentRepository.save(payment);
+    }
+
+    public String createPaymentAndGetVnPayUrl(Booking booking, String ipAddr) {
+        double totalAmount = booking.getTotalAmount();
+        
+        Payment payment = new Payment();
+        payment.setBooking(booking);
+        payment.setAmount(totalAmount);
+        payment.setMethod(PaymentMethod.VNPAY);
+        payment.setStatus(com.tanh.datsan.constant.PaymentStatus.PENDING);
+        save(payment);
+        
+        return createVnPayUrl(totalAmount, booking.getId().toString(), ipAddr);
     }
 
     public String createVnPayUrl(double amount, String orderId, String ipAddr) {

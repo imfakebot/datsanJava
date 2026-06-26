@@ -3,6 +3,7 @@ package com.tanh.datsan.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -13,10 +14,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.tanh.datsan.constant.BookingStatus;
+import com.tanh.datsan.entity.Account;
 import com.tanh.datsan.entity.Booking;
+import com.tanh.datsan.entity.Pitch;
 import com.tanh.datsan.exception.AppException;
 import com.tanh.datsan.exception.ErrorCode;
 import com.tanh.datsan.repository.BookingRepository;
+import com.tanh.datsan.service.TimeSlotService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final TimeSlotService timeSlotService;
 
     public List<Booking> findAll() {
         return bookingRepository.findAll();
@@ -40,6 +45,23 @@ public class BookingService {
 
     public Booking save(Booking booking) {
         return bookingRepository.save(booking);
+    }
+
+    public Booking processOnlineBooking(Account account, Pitch pitch, String bookingDateStr, String startTimeStr, double duration) {
+        LocalDate bookingDate = LocalDate.parse(bookingDateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalTime time = LocalTime.parse(startTimeStr, DateTimeFormatter.ofPattern("HH:mm"));
+        LocalDateTime startTime = LocalDateTime.of(bookingDate, time);
+        LocalDateTime endTime = startTime.plusMinutes((long) (duration * 60));
+
+        Booking booking = new Booking();
+        booking.setAccount(account);
+        booking.setPitch(pitch);
+        booking.setBookingDate(bookingDate);
+        booking.setStartTime(startTime);
+        booking.setEndTime(endTime);
+        booking.setDurationMinutes((int) (duration * 60));
+        
+        return createBooking(booking);
     }
 
     public boolean checkAvailability(Long pitchId, LocalDateTime startTime, LocalDateTime endTime) {
@@ -74,6 +96,11 @@ public class BookingService {
             booking.setBookingCode(generateBookingCode());
         }
         
+        if (booking.getTotalAmount() == null || booking.getTotalAmount() == 0) {
+            double totalAmount = timeSlotService.calculatePrice(booking.getPitch().getId(), booking.getStartTime(), booking.getDurationMinutes());
+            booking.setTotalAmount(totalAmount);
+        }
+        
         booking.setStatus(BookingStatus.PENDING_PAYMENT);
         return bookingRepository.save(booking);
     }
@@ -86,6 +113,11 @@ public class BookingService {
         
         if (booking.getBookingCode() == null || booking.getBookingCode().isEmpty()) {
             booking.setBookingCode(generateBookingCode());
+        }
+        
+        if (booking.getTotalAmount() == null || booking.getTotalAmount() == 0) {
+            double totalAmount = timeSlotService.calculatePrice(booking.getPitch().getId(), booking.getStartTime(), booking.getDurationMinutes());
+            booking.setTotalAmount(totalAmount);
         }
         
         booking.setStatus(BookingStatus.CONFIRMED);
