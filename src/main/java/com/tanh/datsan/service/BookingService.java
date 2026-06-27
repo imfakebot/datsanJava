@@ -20,7 +20,6 @@ import com.tanh.datsan.entity.Pitch;
 import com.tanh.datsan.exception.AppException;
 import com.tanh.datsan.exception.ErrorCode;
 import com.tanh.datsan.repository.BookingRepository;
-import com.tanh.datsan.service.TimeSlotService;
 
 import lombok.RequiredArgsConstructor;
 

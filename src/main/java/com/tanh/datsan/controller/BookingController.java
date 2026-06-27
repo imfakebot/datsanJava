@@ -1,35 +1,25 @@
 package com.tanh.datsan.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.tanh.datsan.constant.BookingStatus;
-import com.tanh.datsan.constant.PaymentMethod;
 import com.tanh.datsan.entity.Account;
 import com.tanh.datsan.entity.Booking;
-import com.tanh.datsan.entity.Payment;
 import com.tanh.datsan.entity.Pitch;
-import com.tanh.datsan.repository.PaymentRepository;
-import com.tanh.datsan.entity.TimeSlot;
 import com.tanh.datsan.service.AccountService;
 import com.tanh.datsan.service.BookingService;
 import com.tanh.datsan.service.PaymentService;
 import com.tanh.datsan.service.PitchService;
 import com.tanh.datsan.service.TimeSlotService;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
-import java.time.DayOfWeek;
-import java.util.List;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping("/booking")
@@ -79,7 +69,7 @@ public class BookingController {
         }
 
         Booking booking = bookingService.processOnlineBooking(account, pitch, bookingDateStr, startTimeStr, duration);
-        
+
         String ipAddr = request.getRemoteAddr();
         String vnpayUrl = paymentService.createPaymentAndGetVnPayUrl(booking, ipAddr);
 
@@ -91,13 +81,13 @@ public class BookingController {
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
         }
-        
+
         String username = ((UserDetails) authentication.getPrincipal()).getUsername();
         Account account = accountService.findByUsername(username).orElse(null);
         if (account == null) {
             return "redirect:/login";
         }
-        
+
         Booking booking = bookingService.findById(id).orElse(null);
         if (booking != null && booking.getAccount().getId().equals(account.getId())) {
             if (booking.getStatus() == BookingStatus.PENDING_PAYMENT) {
@@ -105,7 +95,7 @@ public class BookingController {
                 bookingService.save(booking);
             }
         }
-        
+
         return "redirect:/dashboard";
     }
 }
